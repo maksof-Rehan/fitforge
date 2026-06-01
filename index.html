@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#0b0b12" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>6-Day PPL Workout | Abhinav Mahajan</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%AA%3C/text%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%AA%3C/text%3E%3C/svg%3E" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="application-name" content="PPL Workout" />
+<meta name="apple-mobile-web-app-title" content="PPL Workout" />
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%226-Day%20PPL%20Workout%22%2C%22short_name%22%3A%22PPL%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%230b0b12%22%2C%22theme_color%22%3A%22%230b0b12%22%2C%22start_url%22%3A%22.%2F%22%7D" />
+<style>
+  :root{
+    --bg:#0b0b12;
+    --bg-2:#12121c;
+    --card:#181826;
+    --card-2:#1f1f2f;
+    --text:#ececf5;
+    --muted:#9a9ab0;
+    --accent:#ff5a3c;
+    --accent-2:#ff9556;
+    --ok:#33d17a;
+    --warn:#ffb020;
+    --drop:#ff4d6d;
+    --super:#a855f7;
+    --border:rgba(255,255,255,0.08);
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;padding-bottom:calc(140px + env(safe-area-inset-bottom))}
+  a{color:inherit}
+  button{font-family:inherit}
+
+  /* HEADER */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:linear-gradient(180deg,#12121c 0%,rgba(18,18,28,.92) 100%);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+    padding:env(safe-area-inset-top) 0 0;
+  }
+  .header-inner{padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .title-wrap h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.2px}
+  .title-wrap .sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .reset-btn{
+    background:transparent;border:1px solid var(--border);color:var(--muted);
+    padding:8px 12px;border-radius:10px;font-size:12px;font-weight:600;
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+  }
+  .reset-btn:active{transform:scale(.96)}
+
+  /* DAY TABS */
+  .tabs{
+    display:flex;gap:8px;overflow-x:auto;padding:4px 16px 14px;
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    flex:0 0 auto;padding:10px 16px;border-radius:999px;
+    background:var(--card);border:1px solid var(--border);
+    color:var(--muted);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;
+    transition:all .2s ease;
+  }
+  .tab .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);margin-right:6px;vertical-align:middle}
+  .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(255,90,60,.35)}
+  .tab.active .dot{background:#fff}
+  .tab.done .dot{background:var(--ok)}
+
+  /* PROGRESS BAR */
+  .progress-wrap{padding:0 16px 10px}
+  .progress-bar{height:6px;background:var(--card);border-radius:999px;overflow:hidden}
+  .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .35s ease;border-radius:999px}
+  .progress-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px;font-weight:500}
+
+  /* MAIN */
+  main{padding:16px}
+  .day-hero{
+    background:linear-gradient(135deg,rgba(255,90,60,.12),rgba(168,85,247,.08));
+    border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px;margin-bottom:16px;
+  }
+  .day-hero h2{margin:0 0 4px;font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .day-hero .focus{color:var(--muted);font-size:13px;font-weight:500}
+  .day-hero .stats{display:flex;gap:16px;margin-top:12px;font-size:12px}
+  .day-hero .stat b{display:block;font-size:18px;font-weight:800;color:var(--text)}
+  .day-hero .stat span{color:var(--muted)}
+
+  /* EXERCISE CARD */
+  .exercise{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);
+  }
+  .ex-head{padding:14px 14px 10px;display:flex;align-items:flex-start;gap:10px}
+  .ex-num{
+    flex:0 0 28px;height:28px;border-radius:8px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#fff;font-weight:800;font-size:13px;
+    display:flex;align-items:center;justify-content:center;
+    margin-top:2px;
+  }
+  .ex-name{flex:1;min-width:0}
+  .ex-name h3{margin:0;font-size:15px;font-weight:700;line-height:1.3}
+  .ex-name .sub{color:var(--muted);font-size:12px;margin-top:3px}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border-radius:999px}
+  .badge.drop{background:rgba(255,77,109,.15);color:var(--drop);border:1px solid rgba(255,77,109,.3)}
+  .badge.super{background:rgba(168,85,247,.15);color:var(--super);border:1px solid rgba(168,85,247,.3)}
+  .badge.sets{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+
+  /* VIDEOS */
+  .videos{padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:8px}
+  .vid-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(255,0,0,.08);border:1px solid rgba(255,0,0,.25);
+    color:#ff6b6b;padding:8px 12px;border-radius:10px;
+    font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;
+    transition:all .15s ease;
+  }
+  .vid-btn:active{transform:scale(.96);background:rgba(255,0,0,.15)}
+  .vid-btn svg{width:14px;height:14px;fill:currentColor}
+
+  /* SETS */
+  .sets{padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--border);background:var(--bg-2)}
+  .set{
+    width:100%;
+    background:var(--card-2);border:1.5px solid var(--border);
+    border-radius:10px;padding:9px 12px;
+    display:flex;align-items:center;gap:10px;
+    cursor:pointer;user-select:none;
+    transition:all .2s ease;
+  }
+  .set:active{transform:scale(.98)}
+  .set .set-num{flex:0 0 48px;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .set-inputs{flex:1;display:flex;align-items:center;justify-content:center;gap:8px}
+  .set-inputs input{
+    width:62px;background:var(--bg);border:1px solid var(--border);color:var(--text);
+    border-radius:8px;padding:8px 4px;font-size:15px;font-weight:700;text-align:center;
+    -moz-appearance:textfield;
+  }
+  .set-inputs input::-webkit-outer-spin-button,
+  .set-inputs input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .set-inputs input:focus{outline:none;border-color:var(--accent);background:var(--card)}
+  .set-inputs input::placeholder{color:var(--muted);font-weight:500;font-size:12px}
+  .set-inputs .x{color:var(--muted);font-size:12px;font-weight:600}
+  .set .set-check{
+    width:22px;height:22px;border-radius:50%;
+    border:2px solid var(--muted);
+    display:flex;align-items:center;justify-content:center;
+    transition:all .2s ease;
+  }
+  .set .set-check svg{width:14px;height:14px;fill:#fff;opacity:0;transition:opacity .2s}
+  .set.done{background:rgba(51,209,122,.12);border-color:var(--ok)}
+  .set.done .set-check{background:var(--ok);border-color:var(--ok)}
+  .set.done .set-check svg{opacity:1}
+  .set.done .set-num{color:var(--ok)}
+  .set.drop-set{border-style:dashed;border-color:var(--drop)}
+  .set.drop-set .set-num{color:var(--drop)}
+
+  /* REST TIMER (FLOATING) */
+  .timer-fab{
+    position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));
+    z-index:100;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#fff;border:none;border-radius:999px;
+    padding:14px 20px;font-size:14px;font-weight:700;
+    box-shadow:0 10px 30px rgba(255,90,60,.45);
+    display:flex;align-items:center;gap:8px;cursor:pointer;
+  }
+  .timer-fab:active{transform:scale(.96)}
+  .timer-fab svg{width:16px;height:16px;fill:currentColor}
+
+  .timer-panel{
+    position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));
+    z-index:101;
+    background:linear-gradient(135deg,#1a1a2e,#15152a);
+    border:1px solid var(--border);border-radius:20px;
+    padding:16px;box-shadow:0 20px 50px rgba(0,0,0,.6);
+    display:none;
+  }
+  .timer-panel.open{display:block;animation:slideUp .3s ease}
+  @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .timer-display{font-size:42px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-1px;margin:4px 0 10px}
+  .timer-display.warn{color:var(--warn)}
+  .timer-display.done{color:var(--ok)}
+  .timer-presets{display:flex;gap:6px;justify-content:center;margin-bottom:10px;flex-wrap:wrap}
+  .timer-preset{padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer}
+  .timer-preset.active{background:var(--accent);color:#fff;border-color:transparent}
+  .timer-controls{display:flex;gap:8px}
+  .timer-controls button{flex:1;padding:12px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer}
+  .t-start{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff}
+  .t-pause{background:var(--warn);color:#000}
+  .t-reset{background:var(--card);color:var(--text);border:1px solid var(--border)!important}
+  .t-close{background:transparent;color:var(--muted);border:1px solid var(--border)!important}
+
+  /* FOOTER NOTE */
+  .foot{text-align:center;color:var(--muted);font-size:11px;padding:20px 16px 40px;line-height:1.6}
+  .foot b{color:var(--text)}
+
+  /* TOAST */
+  .toast{
+    position:fixed;top:calc(env(safe-area-inset-top) + 70px);left:50%;transform:translateX(-50%);
+    background:var(--ok);color:#000;padding:10px 18px;border-radius:999px;
+    font-size:13px;font-weight:700;z-index:200;opacity:0;pointer-events:none;
+    transition:opacity .3s;
+  }
+  .toast.show{opacity:1}
+
+  @media (min-width:640px){
+    body{max-width:640px;margin:0 auto}
+    .set{min-width:70px}
+  }
+
+  /* VIDEO MODAL */
+  .vid-modal{
+    position:fixed;inset:0;z-index:500;
+    background:rgba(0,0,0,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    display:none;align-items:center;justify-content:center;
+    padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
+  }
+  .vid-modal.open{display:flex;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .vid-box{
+    width:100%;max-width:720px;
+    background:#000;border-radius:16px;overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.7);
+    display:flex;flex-direction:column;
+  }
+  .vid-header{
+    padding:12px 14px;background:#111;
+    display:flex;align-items:center;gap:10px;
+    border-bottom:1px solid var(--border);
+  }
+  .vid-header .title{flex:1;min-width:0;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vid-header .title span{display:block;color:var(--muted);font-size:11px;font-weight:500;margin-top:2px}
+  .vid-close{
+    background:rgba(255,255,255,.08);border:none;color:#fff;
+    width:34px;height:34px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .vid-close svg{width:18px;height:18px;fill:currentColor}
+  .vid-wrap{position:relative;width:100%;padding-top:75%;background:#0a0a14;display:flex;align-items:center;justify-content:center}
+  .vid-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .vid-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
+  .vid-fallback{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:20px;text-align:center;
+    background:linear-gradient(135deg,#0f0f1a,#181826);
+  }
+  .vid-fallback .big{font-size:52px;margin-bottom:12px}
+  .vid-fallback h4{margin:0 0 6px;font-size:16px;font-weight:700;color:#fff}
+  .vid-fallback p{margin:0 0 16px;font-size:12px;color:var(--muted);max-width:280px;line-height:1.5}
+  .vid-fallback .demo-btn{
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#fff;border:none;padding:12px 22px;border-radius:999px;
+    font-size:13px;font-weight:700;cursor:pointer;
+    box-shadow:0 8px 24px rgba(255,90,60,.35);
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+  }
+  .vid-fallback .demo-btn svg{width:14px;height:14px;fill:currentColor}
+  .vid-loading{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:12px;
+  }
+  .vid-loading .spinner{
+    width:32px;height:32px;border:3px solid rgba(255,255,255,.1);
+    border-top-color:var(--accent);border-radius:50%;
+    animation:spin 1s linear infinite;margin-bottom:10px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .vid-footer{
+    padding:10px 14px;background:#0f0f1a;
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    border-top:1px solid var(--border);
+  }
+  .vid-footer .hint{flex:1;font-size:11px;color:var(--muted)}
+  .vid-footer a,.vid-footer button{
+    background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);
+    padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;
+    text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  }
+  .vid-footer .yt-open{background:rgba(255,0,0,.15);border-color:rgba(255,0,0,.3);color:#ff6b6b}
+
+  /* Small info banner */
+  .info-banner{
+    background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(255,90,60,.08));
+    border:1px solid rgba(168,85,247,.25);border-radius:12px;
+    padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.5;
+  }
+  .info-banner b{color:var(--text)}
+  .info-banner a{color:var(--super);text-decoration:underline}
+
+  /* DIET */
+  .diet-items{padding:0 14px 14px;display:flex;flex-direction:column;gap:7px}
+  .diet-item{font-size:13px;color:var(--text);line-height:1.5}
+  .diet-item b{color:var(--accent-2)}
+  .tab.diet-tab.active{background:linear-gradient(135deg,var(--super),#c084fc);box-shadow:0 6px 18px rgba(168,85,247,.35)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="title-wrap">
+      <h1>🔥 6-Day PPL Split</h1>
+      <div class="sub">Abhinav Mahajan · Push · Pull · Legs</div>
+    </div>
+    <button class="reset-btn" id="resetBtn" title="Reset current day">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+      Reset
+    </button>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-meta"><span id="progressText">0 / 0 sets</span><span id="progressPct">0%</span></div>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<div class="foot">
+  Progress + <b>weight & reps auto-save</b> per day on this device.<br/>
+  Har set me apna <b>weight (kg)</b> aur <b>reps</b> likho — agle hafte beat karna! 💪<br/>
+  Tap exercise button for demos · <span style="opacity:.6">Add to Home Screen for app feel 📱</span>
+</div>
+
+<!-- FLOATING TIMER -->
+<button class="timer-fab" id="timerFab">
+  <svg viewBox="0 0 24 24"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42C16.07 4.74 14.12 4 12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+  <span id="fabLabel">Rest Timer</span>
+</button>
+
+<div class="timer-panel" id="timerPanel">
+  <div class="timer-display" id="timerDisplay">01:30</div>
+  <div class="timer-presets" id="timerPresets">
+    <button class="timer-preset" data-sec="60">60s</button>
+    <button class="timer-preset active" data-sec="90">90s</button>
+    <button class="timer-preset" data-sec="120">2m</button>
+    <button class="timer-preset" data-sec="180">3m</button>
+  </div>
+  <div class="timer-controls">
+    <button class="t-start" id="tStart">Start</button>
+    <button class="t-reset" id="tReset">Reset</button>
+    <button class="t-close" id="tClose">Hide</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Saved ✓</div>
+
+<!-- IN-APP VIDEO MODAL -->
+<div class="vid-modal" id="vidModal">
+  <div class="vid-box">
+    <div class="vid-header">
+      <div class="title" id="vidTitle">Exercise<span id="vidSub">Tutorial</span></div>
+      <button class="vid-close" id="vidClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+    <div class="vid-wrap" id="vidWrap">
+      <div class="vid-loading" id="vidLoading"><div style="text-align:center"><div class="spinner"></div>Loading demo…</div></div>
+      <img id="vidImg" alt="" style="display:none" />
+      <div class="vid-fallback" id="vidFallback" style="display:none">
+        <div class="big">🏋️</div>
+        <h4 id="vidFbTitle">Exercise Demo</h4>
+        <p>Tap below to see animated GIF demos — multiple angles aur variations mil jayengi.</p>
+        <a id="vidOpenDemo" class="demo-btn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          View Animated Demos
+        </a>
+      </div>
+    </div>
+    <div class="vid-footer">
+      <span class="hint" id="vidHint">Animated demo</span>
+      <a id="vidOpenYT" class="yt-open" target="_blank" rel="noopener">Video Tutorial</a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   EXERCISE DEMO CONFIG
+   ------------------------------------------------------------
+   Har exercise ka `slug` free-exercise-db (GitHub) ka hai.
+   Agar slug correct hai to in-app 2-frame animation play hoti hai.
+   Agar load na ho → fallback "View Demo" button Google Images
+   search kholega (guaranteed working).
+   ============================================================ */
+const EXERCISE_DB_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises";
+
+/* ============================================================
+   WORKOUT DATA
+   ============================================================ */
+const WORKOUT = {
+  monday: {
+    title: "Push 1",
+    focus: "Chest Focus",
+    emoji: "💪",
+    exercises: [
+      { name: "Inclined Bench Press", sets: 4, t: 75, variants: [
+        { label: "Dumbbell", q: "incline dumbbell bench press form tutorial" },
+        { label: "Barbell",  q: "incline barbell bench press form tutorial" }
+      ]},
+      { name: "Flat Press", sets: 3, t: 93, variants: [
+        { label: "Barbell",       q: "flat barbell bench press form" },
+        { label: "Smith Machine", q: "smith machine flat bench press form" },
+        { label: "Dumbbell",      q: "flat dumbbell bench press form" }
+      ]},
+      { name: "Shoulder Press", sets: 3, t: 111, variants: [
+        { label: "Smith Machine", q: "smith machine shoulder press form" },
+        { label: "Machine",       q: "machine shoulder press form" }
+      ]},
+      { name: "Chest Fly Movement", sets: 3, t: 130, variants: [
+        { label: "High Pulley Cable Crossover", q: "high to low cable crossover chest form" },
+        { label: "Decline Dumbbell Fly",        q: "decline dumbbell fly form tutorial" }
+      ]},
+      { name: "Lateral Raise", sets: 3, dropSet: true, t: 148, variants: [
+        { label: "Dumbbell", q: "dumbbell lateral raise form" },
+        { label: "Cable",    q: "cable lateral raise form" }
+      ]},
+      { name: "Single Arm Overhead Triceps Extension", sets: 4, t: 167, variants: [
+        { label: "Tutorial", q: "single arm overhead triceps extension form" }
+      ]},
+      { name: "Rope Cable Pushdowns", sets: 3, dropSet: true, t: 185, variants: [
+        { label: "Tutorial", q: "rope cable pushdowns triceps form" }
+      ]},
+      { name: "Abs", sets: 4, t: 204, variants: [
+        { label: "Decline Crunches", q: "decline bench crunches form" },
+        { label: "Cable Crunches",   q: "cable crunches abs form" }
+      ]}
+    ]
+  },
+  tuesday: {
+    title: "Pull 1",
+    focus: "Back & Biceps",
+    emoji: "🔥",
+    exercises: [
+      { name: "Pulldowns", sets: 4, t: 225, variants: [
+        { label: "Wide Grip",    q: "wide grip lat pulldown form" },
+        { label: "Neutral Grip", q: "neutral grip lat pulldown form" }
+      ]},
+      { name: "Rowing", sets: 3, t: 247, variants: [
+        { label: "Cable",    q: "seated cable row form" },
+        { label: "Landmine", q: "landmine row form tutorial" }
+      ]},
+      { name: "Lower Back", sets: 3, t: 270, variants: [
+        { label: "Hyper Extension",      q: "back hyperextension form" },
+        { label: "Barbell Good Morning", q: "barbell good morning form" }
+      ]},
+      { name: "Biceps Curls 1", sets: 4, t: 292, variants: [
+        { label: "Inclined Dumbbell Curl", q: "incline dumbbell curl form" },
+        { label: "Bayesian Curl",          q: "bayesian cable curl form" }
+      ]},
+      { name: "Biceps Curls 2", sets: 2, dropSet: true, t: 315, variants: [
+        { label: "Preacher Curl",      q: "preacher curl form" },
+        { label: "Concentration Curl", q: "concentration curl form" },
+        { label: "Spider Curl",        q: "spider curl form" }
+      ]},
+      { name: "Forearms (Superset)", sets: 3, superset: true, t: 337, variants: [
+        { label: "Barbell Wrist Curl", q: "barbell wrist curl forearms" },
+        { label: "Dead Hang",          q: "dead hang forearm exercise" }
+      ]}
+    ]
+  },
+  wednesday: {
+    title: "Legs 1",
+    focus: "Quads & Glutes",
+    emoji: "🦵",
+    exercises: [
+      { name: "Main Quad Lift", sets: 4, t: 360, variants: [
+        { label: "Smith Machine Squats", q: "smith machine squat form" },
+        { label: "Leg Press",            q: "leg press form tutorial" }
+      ]},
+      { name: "Barbell Hip Thrust", sets: 3, t: 387, variants: [
+        { label: "Tutorial", q: "barbell hip thrust form" }
+      ]},
+      { name: "Leg Extension", sets: 2, dropSet: true, t: 413, variants: [
+        { label: "Tutorial", q: "leg extension machine form" }
+      ]},
+      { name: "Glute Isolation", sets: 2, t: 440, variants: [
+        { label: "Glute Machine Abduction", q: "hip abduction machine glutes" },
+        { label: "Side Plank Clams",        q: "side plank clamshell exercise" }
+      ]},
+      { name: "Standing Calf Raises", sets: 5, t: 467, variants: [
+        { label: "Tutorial", q: "standing calf raise form" }
+      ]},
+      { name: "Abs", sets: 4, t: 493, variants: [
+        { label: "Weighted Russian Twist", q: "weighted russian twist form" },
+        { label: "Oblique Crunches",        q: "oblique crunch form" }
+      ]}
+    ]
+  },
+  thursday: {
+    title: "Push 2",
+    focus: "Shoulder Focus",
+    emoji: "🏋️",
+    exercises: [
+      { name: "Overhead Press", sets: 4, t: 520, variants: [
+        { label: "Dumbbell", q: "overhead dumbbell press form" },
+        { label: "Barbell",  q: "overhead barbell press ohp form" }
+      ]},
+      { name: "Seated Flat Press", sets: 3, t: 537, variants: [
+        { label: "Cable",   q: "seated cable chest press form" },
+        { label: "Machine", q: "seated machine chest press form" },
+        { label: "Smith",   q: "smith machine seated chest press" }
+      ]},
+      { name: "Lateral Raise", sets: 3, dropSet: true, t: 553, variants: [
+        { label: "Cable",    q: "cable lateral raise form" },
+        { label: "Dumbbell", q: "dumbbell lateral raise form" }
+      ]},
+      { name: "Inclined Fly", sets: 3, t: 570, variants: [
+        { label: "Cable",    q: "incline cable fly form" },
+        { label: "Dumbbell", q: "incline dumbbell fly form" }
+      ]},
+      { name: "Front Raise", sets: 2, t: 586, variants: [
+        { label: "Dumbbell", q: "front dumbbell raise shoulders form" },
+        { label: "Cable",    q: "cable front raise form" }
+      ]},
+      { name: "Skullcrushers", sets: 4, t: 603, variants: [
+        { label: "Lying Dumbbell", q: "lying dumbbell skullcrusher form" },
+        { label: "EZ Bar",         q: "ez bar skullcrusher form" }
+      ]},
+      { name: "Triceps Finisher", sets: 3, dropSet: true, t: 619, variants: [
+        { label: "Weighted Cable Dips", q: "weighted cable dips triceps" },
+        { label: "Triceps Kickback",    q: "triceps kickback dumbbell form" }
+      ]},
+      { name: "Abs", sets: 4, t: 636, variants: [
+        { label: "Hanging Knee Raise", q: "hanging knee raise form" },
+        { label: "Hanging Leg Raise",  q: "hanging leg raise form" }
+      ]}
+    ]
+  },
+  friday: {
+    title: "Pull 2",
+    focus: "Back & Biceps",
+    emoji: "🎯",
+    exercises: [
+      { name: "Heavy Row", sets: 4, t: 747, variants: [
+        { label: "T-Bar Row",  q: "t-bar row form tutorial" },
+        { label: "Barbell Row", q: "barbell bent over row form" }
+      ]},
+      { name: "Weighted Pull-ups", sets: 3, t: 770, variants: [
+        { label: "Tutorial", q: "weighted pull ups form" }
+      ]},
+      { name: "Rear Delt", sets: 3, dropSet: true, t: 793, variants: [
+        { label: "Reverse Peck Fly", q: "reverse pec deck fly form" },
+        { label: "Face Pulls",       q: "face pulls cable form" }
+      ]},
+      { name: "Biceps Curls 1", sets: 4, t: 816, variants: [
+        { label: "EZ Barbell Curl",    q: "ez bar curl biceps form" },
+        { label: "Standing Cable Curl", q: "standing cable curl biceps form" }
+      ]},
+      { name: "Biceps Curls 2", sets: 2, dropSet: true, t: 838, variants: [
+        { label: "Reverse Cable Curl",  q: "reverse grip cable curl form" },
+        { label: "Inclined Hammer Curl", q: "incline hammer curl form" }
+      ]},
+      { name: "Forearms (Superset)", sets: 3, superset: true, t: 861, variants: [
+        { label: "Reverse Wrist Curl",  q: "reverse wrist curl forearms" },
+        { label: "Dumbbell Farmer Walk", q: "dumbbell farmer walk form" }
+      ]}
+    ]
+  },
+  saturday: {
+    title: "Legs 2",
+    focus: "Hamstrings & Glutes",
+    emoji: "🏃",
+    exercises: [
+      { name: "Romanian Deadlift", sets: 4, t: 884, variants: [
+        { label: "Dumbbell", q: "dumbbell romanian deadlift rdl form" },
+        { label: "Barbell",  q: "barbell romanian deadlift rdl form" }
+      ]},
+      { name: "Walking Lunges", sets: 3, t: 900, variants: [
+        { label: "Dumbbell", q: "walking dumbbell lunges form" },
+        { label: "Barbell",  q: "walking barbell lunges form" }
+      ]},
+      { name: "Quad Emphasis", sets: 3, t: 908, variants: [
+        { label: "Hack Squat",            q: "hack squat machine form" },
+        { label: "Bulgarian Split Squat", q: "bulgarian split squat form" }
+      ]},
+      { name: "Leg Curls", sets: 2, dropSet: true, t: 916, variants: [
+        { label: "Tutorial", q: "seated lying leg curl hamstring form" }
+      ]},
+      { name: "Glutes Cable Kickback", sets: 2, t: 932, variants: [
+        { label: "Tutorial", q: "cable glute kickback form" }
+      ]},
+      { name: "Seated Calf Raises", sets: 5, t: 948, variants: [
+        { label: "Tutorial", q: "seated calf raise form" }
+      ]},
+      { name: "Core Hold", sets: 3, t: 964, variants: [
+        { label: "Heavy Plank Hold", q: "weighted plank hold form" },
+        { label: "Hollow Hold",      q: "hollow body hold form" }
+      ]}
+    ]
+  }
+};
+
+const DAY_ORDER = ["monday","tuesday","wednesday","thursday","friday","saturday"];
+const DAY_LABEL = {monday:"Mon",tuesday:"Tue",wednesday:"Wed",thursday:"Thu",friday:"Fri",saturday:"Sat"};
+
+/* ============================================================
+   DIET PLAN  (Muscle Build + Fat Loss · ~150g protein/day)
+   ============================================================ */
+const DIET = {
+  goal: "Muscle Build + Fat Loss · ~150g protein/day · Wake 12 PM, Workout 3 PM",
+  meals: [
+    { time:"12:00 PM · Uthte hi (Meal 1)", emoji:"🍳",
+      items:["<b>3-4 ande</b> (anda)", "2 roti (ya 1 paratha — extra ghee nahi)", "Chai · kam cheeni"],
+      tip:"Din ka pehla meal — protein + carbs se din shuru karo" },
+    { time:"2:00 PM · Pre-Workout (1 ghanta pehle)", emoji:"🍌",
+      items:["1 kela (energy)", "Black coffee — optional (workout boost)"],
+      tip:"Halka rakho — bhari khana workout me dikkat karega" },
+    { time:"3:00 PM · 🏋️ WORKOUT", emoji:"💪",
+      items:["Workout time — sirf paani / sip karo"],
+      tip:"Pet bhar ke khana mat khao" },
+    { time:"4:15 PM · Post-Workout (SABSE ZAROORI)", emoji:"🥤",
+      items:["<b>1 scoop whey + 1 kela</b> turant (ho sake to)", "30 min baad proper meal: chawal/roti + <b>chicken / paneer / 4 ande</b> + sabzi"],
+      tip:"Muscle yahin banti hai — protein + carbs zaroor" },
+    { time:"8:00 PM · Job ke dauraan (Dinner)", emoji:"🍛",
+      items:["Roti + salan", "<b>1 katori daal YA chicken/paneer</b>", "Salad: kheera, pyaaz, tamatar"],
+      tip:"Protein + fiber — fat loss me madad" },
+    { time:"12:00 AM · Sone se pehle (Light)", emoji:"🌙",
+      items:["1 katori <b>dahi</b> ya paneer ya 2 ande", "1 glass doodh (optional)"],
+      tip:"Raat bhar muscle recovery · meetha avoid karo" }
+  ],
+  rules: [
+    "🥩 Har meal me protein — target ~150g/day (88kg ke liye)",
+    "🚫 Roz ka meetha, cold drink, extra oil/ghee band",
+    "💧 3-4 litre paani roz",
+    "😴 7-8 ghante neend — recovery me hi muscle banti hai",
+    "🍚 Workout wale din carbs (roti/chawal) thode zyada"
+  ],
+  note: "Ye general guidance hai — agar diabetes/BP jaisi koi condition ho to doctor se confirm kar lena."
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentDay = detectTodayKey();
+let view = "workout";  // "workout" | "diet"
+const progressKey = (day) => `ppl-progress-${day}`;
+
+function detectTodayKey(){
+  const map = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+  const d = map[new Date().getDay()];
+  return WORKOUT[d] ? d : "monday";
+}
+
+function loadProgress(day){
+  try { return JSON.parse(localStorage.getItem(progressKey(day))) || {}; }
+  catch { return {}; }
+}
+function saveProgress(day, data){
+  localStorage.setItem(progressKey(day), JSON.stringify(data));
+}
+/* Normalize one exercise's progress entry.
+   Old format was a plain number (done-count); new format is {done, log}. */
+function getEx(prog, idx){
+  const v = prog[idx];
+  if(typeof v === "number") return { done: v, log: {} };
+  return v ? { done: v.done||0, log: v.log||{} } : { done: 0, log: {} };
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderTabs(){
+  const wrap = document.getElementById("tabs");
+  wrap.innerHTML = "";
+  DAY_ORDER.forEach(key=>{
+    const btn = document.createElement("button");
+    btn.className = "tab" + (view==="workout" && key===currentDay ? " active":"");
+    const prog = loadProgress(key);
+    const totalSets = WORKOUT[key].exercises.reduce((a,e)=>a+e.sets,0);
+    const doneSets = WORKOUT[key].exercises.reduce((a,e,i)=>a+getEx(prog,i).done,0);
+    if(totalSets>0 && doneSets===totalSets) btn.classList.add("done");
+    btn.innerHTML = `<span class="dot"></span>${DAY_LABEL[key]} · ${WORKOUT[key].title}`;
+    btn.onclick = ()=>{ view="workout"; currentDay = key; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); };
+    wrap.appendChild(btn);
+  });
+
+  // Diet tab
+  const dietBtn = document.createElement("button");
+  dietBtn.className = "tab diet-tab" + (view==="diet" ? " active":"");
+  dietBtn.innerHTML = `🍽️ Diet`;
+  dietBtn.onclick = ()=>{ view="diet"; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); };
+  wrap.appendChild(dietBtn);
+}
+
+function renderDay(){
+  const day = WORKOUT[currentDay];
+  const main = document.getElementById("main");
+  const prog = loadProgress(currentDay);
+  const totalSets = day.exercises.reduce((a,e)=>a+e.sets,0);
+  const doneSets = day.exercises.reduce((a,e,i)=>a+getEx(prog,i).done,0);
+
+  main.innerHTML = `
+    <div class="day-hero">
+      <h2>${day.emoji} ${day.title}</h2>
+      <div class="focus">${day.focus}</div>
+      <div class="stats">
+        <div class="stat"><b>${day.exercises.length}</b><span>Exercises</span></div>
+        <div class="stat"><b>${totalSets}</b><span>Total Sets</span></div>
+        <div class="stat"><b>${doneSets}</b><span>Done</span></div>
+      </div>
+    </div>
+  `;
+
+  day.exercises.forEach((ex, idx)=>{
+    const exData = getEx(prog, idx);
+    const done = exData.done;
+    const card = document.createElement("div");
+    card.className = "exercise";
+
+    const badges = [`<span class="badge sets">${ex.sets} sets</span>`];
+    if(ex.dropSet) badges.push(`<span class="badge drop">Drop Set</span>`);
+    if(ex.superset) badges.push(`<span class="badge super">Superset</span>`);
+
+    const choiceNote = ex.variants.length>1 && !ex.superset
+      ? `<div class="sub">Choose ${ex.variants.length===2?"one":"any"} · tap for tutorial</div>`
+      : (ex.superset ? `<div class="sub">Do both back-to-back</div>` : "");
+
+    const videoButtons = ex.variants.map((v,vIdx)=>`
+      <button class="vid-btn" data-ex="${idx}" data-v="${vIdx}">
+        <svg viewBox="0 0 24 24"><path d="M21.58 7.19c-.23-.86-.91-1.54-1.77-1.77C18.25 5 12 5 12 5s-6.25 0-7.81.42c-.86.23-1.54.91-1.77 1.77C2 8.75 2 12 2 12s0 3.25.42 4.81c.23.86.91 1.54 1.77 1.77C5.75 19 12 19 12 19s6.25 0 7.81-.42c.86-.23 1.54-.91 1.77-1.77C22 15.25 22 12 22 12s0-3.25-.42-4.81zM10 15V9l5.2 3L10 15z"/></svg>
+        ${v.label}
+      </button>
+    `).join("");
+
+    const setHtml = Array.from({length:ex.sets}).map((_,sIdx)=>{
+      const isDone = sIdx < done;
+      const isDrop = ex.dropSet && sIdx === ex.sets-1;
+      const lg = exData.log[sIdx] || {};
+      return `
+        <div class="set ${isDone?"done":""} ${isDrop?"drop-set":""}" data-ex="${idx}" data-set="${sIdx}">
+          <div class="set-num">${isDrop?"Drop":"Set "+(sIdx+1)}</div>
+          <div class="set-inputs">
+            <input class="s-w" type="number" inputmode="decimal" data-ex="${idx}" data-set="${sIdx}" value="${lg.w??""}" placeholder="kg" />
+            <span class="x">×</span>
+            <input class="s-r" type="number" inputmode="numeric" data-ex="${idx}" data-set="${sIdx}" value="${lg.r??""}" placeholder="reps" />
+          </div>
+          <div class="set-check">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    card.innerHTML = `
+      <div class="ex-head">
+        <div class="ex-num">${idx+1}</div>
+        <div class="ex-name">
+          <h3>${ex.name}</h3>
+          ${choiceNote}
+          <div class="badges">${badges.join("")}</div>
+        </div>
+      </div>
+      <div class="videos">${videoButtons}</div>
+      <div class="sets">${setHtml}</div>
+    `;
+    main.appendChild(card);
+  });
+
+  // Bind video buttons (open in-app modal)
+  main.querySelectorAll(".vid-btn").forEach(btn=>{
+    btn.addEventListener("click",(e)=>{
+      e.stopPropagation();
+      const exIdx = +btn.dataset.ex;
+      const vIdx = +btn.dataset.v;
+      const ex = day.exercises[exIdx];
+      const v = ex.variants[vIdx];
+      openVideo(ex, v);
+    });
+  });
+
+  // Bind set taps (ignore taps on the weight/reps inputs)
+  main.querySelectorAll(".set").forEach(el=>{
+    el.addEventListener("click",(e)=>{
+      if(e.target.tagName === "INPUT") return;
+      const exIdx = +el.dataset.ex;
+      const sIdx = +el.dataset.set;
+      const prog = loadProgress(currentDay);
+      const exData = getEx(prog, exIdx);
+      const currDone = exData.done;
+      // Toggle logic: if tapped set is already the last done, unmark one; else mark up to this set
+      if(sIdx+1 === currDone){
+        exData.done = currDone - 1;
+      } else {
+        exData.done = sIdx + 1;
+      }
+      prog[exIdx] = exData;
+      saveProgress(currentDay, prog);
+      if(navigator.vibrate) navigator.vibrate(15);
+      // Auto open rest timer on completion
+      if(exData.done === sIdx + 1){
+        openTimer(true);
+      }
+      renderAll();
+    });
+  });
+
+  // Bind weight / reps inputs — save without re-rendering (keeps focus)
+  main.querySelectorAll(".s-w, .s-r").forEach(inp=>{
+    inp.addEventListener("click", e=> e.stopPropagation());
+    inp.addEventListener("change", ()=>{
+      const exIdx = +inp.dataset.ex;
+      const sIdx = +inp.dataset.set;
+      const prog = loadProgress(currentDay);
+      const exData = getEx(prog, exIdx);
+      exData.log[sIdx] = exData.log[sIdx] || {};
+      if(inp.classList.contains("s-w")) exData.log[sIdx].w = inp.value;
+      else exData.log[sIdx].r = inp.value;
+      prog[exIdx] = exData;
+      saveProgress(currentDay, prog);
+    });
+  });
+
+  updateProgressBar(doneSets, totalSets);
+}
+
+function updateProgressBar(done, total){
+  const pct = total>0 ? Math.round((done/total)*100) : 0;
+  document.getElementById("progressFill").style.width = pct+"%";
+  document.getElementById("progressText").textContent = `${done} / ${total} sets`;
+  document.getElementById("progressPct").textContent = pct+"%";
+}
+
+function renderDiet(){
+  const main = document.getElementById("main");
+  document.querySelector(".progress-wrap").style.display = "none";
+  main.innerHTML = `
+    <div class="day-hero">
+      <h2>🍽️ Diet Plan</h2>
+      <div class="focus">${DIET.goal}</div>
+    </div>
+    <div class="info-banner">Ghar ke khane se banaya hai — sabse zaroori: <b>protein badhao</b>, paratha &amp; roz ka meetha kam karo.</div>
+    ${DIET.meals.map(m=>`
+      <div class="exercise">
+        <div class="ex-head">
+          <div class="ex-num" style="font-size:16px">${m.emoji}</div>
+          <div class="ex-name">
+            <h3>${m.time}</h3>
+            ${m.tip?`<div class="sub">${m.tip}</div>`:""}
+          </div>
+        </div>
+        <div class="diet-items">
+          ${m.items.map(it=>`<div class="diet-item">• ${it}</div>`).join("")}
+        </div>
+      </div>
+    `).join("")}
+    <div class="exercise">
+      <div class="ex-head">
+        <div class="ex-num" style="font-size:16px">📋</div>
+        <div class="ex-name"><h3>Rules</h3></div>
+      </div>
+      <div class="diet-items">
+        ${DIET.rules.map(r=>`<div class="diet-item">${r}</div>`).join("")}
+      </div>
+    </div>
+    <div class="foot" style="padding:8px 4px 0">${DIET.note}</div>
+  `;
+}
+
+function renderAll(){
+  renderTabs();
+  if(view==="diet"){
+    renderDiet();
+  } else {
+    document.querySelector(".progress-wrap").style.display = "";
+    renderDay();
+  }
+}
+
+/* ============================================================
+   IN-APP EXERCISE DEMO MODAL
+   ------------------------------------------------------------
+   Strategy:
+   1. Try loading a still-image demo from free-exercise-db (GitHub)
+      — if slug matches, image loads inline and auto-alternates
+        between frame 0 and frame 1 every 900ms (GIF effect).
+   2. If load fails, show fallback with "View Demo" button that
+      opens Google Images animated search (guaranteed to work).
+   3. "Open in YouTube" always available as extra fallback.
+   ============================================================ */
+const vidModal    = document.getElementById("vidModal");
+const vidImg      = document.getElementById("vidImg");
+const vidFallback = document.getElementById("vidFallback");
+const vidLoading  = document.getElementById("vidLoading");
+const vidTitle    = document.getElementById("vidTitle");
+const vidSub      = document.getElementById("vidSub");
+const vidOpenYT   = document.getElementById("vidOpenYT");
+const vidOpenDemo = document.getElementById("vidOpenDemo");
+const vidHint     = document.getElementById("vidHint");
+const vidFbTitle  = document.getElementById("vidFbTitle");
+
+let frameTimer = null;
+let currentFrame = 0;
+
+function stopFrameCycle(){
+  if(frameTimer){ clearInterval(frameTimer); frameTimer=null; }
+}
+
+function openVideo(ex, variant){
+  vidTitle.childNodes[0].nodeValue = ex.name + " ";
+  vidSub.textContent = variant.label;
+  vidFbTitle.textContent = ex.name + " — " + variant.label;
+
+  const gifSearch = `https://www.google.com/search?q=${encodeURIComponent(variant.q + " animated gif")}&tbm=isch&tbs=itp:animated`;
+  const ytLink    = `https://www.youtube.com/results?search_query=${encodeURIComponent(variant.q)}`;
+  vidOpenDemo.href = gifSearch;
+  vidOpenYT.href   = ytLink;
+
+  // Reset UI state
+  stopFrameCycle();
+  vidLoading.style.display = "flex";
+  vidImg.style.display = "none";
+  vidFallback.style.display = "none";
+  vidHint.textContent = "Loading demo…";
+
+  vidModal.classList.add("open");
+  document.body.style.overflow = "hidden";
+
+  const slug = variant.slug;
+  if(!slug){
+    showFallback();
+    return;
+  }
+
+  const frame0 = `${EXERCISE_DB_BASE}/${slug}/images/0.jpg`;
+  const frame1 = `${EXERCISE_DB_BASE}/${slug}/images/1.jpg`;
+
+  // Test-load frame 0
+  const test = new Image();
+  test.onload = ()=>{
+    currentFrame = 0;
+    vidImg.src = frame0;
+    vidImg.style.display = "block";
+    vidLoading.style.display = "none";
+    vidHint.textContent = "Animated demo · start ↔ end position";
+    // Preload frame 1 and then alternate
+    const probe = new Image();
+    probe.onload = ()=>{
+      frameTimer = setInterval(()=>{
+        currentFrame = currentFrame ? 0 : 1;
+        vidImg.src = currentFrame ? frame1 : frame0;
+      }, 900);
+    };
+    probe.onerror = ()=>{ /* only one frame available, keep static */ };
+    probe.src = frame1;
+  };
+  test.onerror = showFallback;
+  test.src = frame0;
+}
+
+function showFallback(){
+  stopFrameCycle();
+  vidLoading.style.display = "none";
+  vidImg.style.display = "none";
+  vidFallback.style.display = "flex";
+  vidHint.textContent = "Tap View Demo for Google Images";
+}
+
+function closeVideo(){
+  vidModal.classList.remove("open");
+  stopFrameCycle();
+  vidImg.src = "";
+  vidImg.style.display = "none";
+  vidFallback.style.display = "none";
+  vidLoading.style.display = "flex";
+  document.body.style.overflow = "";
+}
+
+document.getElementById("vidClose").onclick = closeVideo;
+vidModal.addEventListener("click",(e)=>{ if(e.target===vidModal) closeVideo(); });
+document.addEventListener("keydown",(e)=>{ if(e.key==="Escape" && vidModal.classList.contains("open")) closeVideo(); });
+// Tap image to pause/resume animation
+vidImg.addEventListener("click",()=>{
+  if(frameTimer){ stopFrameCycle(); vidHint.textContent="Paused · tap image to resume"; }
+  else if(vidImg.src){
+    frameTimer = setInterval(()=>{
+      currentFrame = currentFrame ? 0 : 1;
+      const slug = vidImg.dataset.slug;
+      vidImg.src = vidImg.src.replace(/\/(0|1)\.jpg$/, `/${currentFrame}.jpg`);
+    },900);
+    vidHint.textContent = "Animated demo · start ↔ end position";
+  }
+});
+
+/* ============================================================
+   RESET
+   ============================================================ */
+document.getElementById("resetBtn").onclick = ()=>{
+  const day = WORKOUT[currentDay];
+  if(confirm(`Reset all progress for ${day.title} (${DAY_LABEL[currentDay]})?`)){
+    localStorage.removeItem(progressKey(currentDay));
+    renderAll();
+    showToast("Reset ✓");
+  }
+};
+
+/* ============================================================
+   REST TIMER
+   ============================================================ */
+const timerPanel = document.getElementById("timerPanel");
+const timerFab = document.getElementById("timerFab");
+const timerDisplay = document.getElementById("timerDisplay");
+const fabLabel = document.getElementById("fabLabel");
+let timerSec = 90, timerRemain = 90, timerInterval=null, timerRunning=false;
+
+function fmt(s){ const m=Math.floor(s/60); const ss=s%60; return `${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`; }
+function updateTimerDisplay(){
+  timerDisplay.textContent = fmt(timerRemain);
+  timerDisplay.classList.toggle("warn", timerRemain<=10 && timerRemain>0);
+  timerDisplay.classList.toggle("done", timerRemain===0);
+  fabLabel.textContent = timerRunning ? fmt(timerRemain) : "Rest Timer";
+}
+function openTimer(autoStart){
+  timerPanel.classList.add("open");
+  if(autoStart && !timerRunning){ startTimer(); }
+}
+function startTimer(){
+  if(timerRunning) return;
+  timerRunning = true;
+  document.getElementById("tStart").textContent = "Pause";
+  document.getElementById("tStart").classList.remove("t-start");
+  document.getElementById("tStart").classList.add("t-pause");
+  timerInterval = setInterval(()=>{
+    timerRemain--;
+    if(timerRemain<=0){
+      clearInterval(timerInterval);
+      timerRunning=false;
+      timerRemain=0;
+      updateTimerDisplay();
+      if(navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
+      beep();
+      document.getElementById("tStart").textContent = "Start";
+      document.getElementById("tStart").classList.add("t-start");
+      document.getElementById("tStart").classList.remove("t-pause");
+      return;
+    }
+    updateTimerDisplay();
+  },1000);
+}
+function pauseTimer(){
+  clearInterval(timerInterval);
+  timerRunning=false;
+  document.getElementById("tStart").textContent = "Start";
+  document.getElementById("tStart").classList.add("t-start");
+  document.getElementById("tStart").classList.remove("t-pause");
+  updateTimerDisplay();
+}
+function resetTimer(){
+  clearInterval(timerInterval);
+  timerRunning=false;
+  timerRemain = timerSec;
+  document.getElementById("tStart").textContent = "Start";
+  document.getElementById("tStart").classList.add("t-start");
+  document.getElementById("tStart").classList.remove("t-pause");
+  updateTimerDisplay();
+}
+function beep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type="sine"; o.frequency.value=880;
+    o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.3,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);
+    o.start(); o.stop(ctx.currentTime+0.5);
+  }catch(e){}
+}
+
+timerFab.onclick = ()=> openTimer(false);
+document.getElementById("tStart").onclick = ()=> timerRunning ? pauseTimer() : startTimer();
+document.getElementById("tReset").onclick = resetTimer;
+document.getElementById("tClose").onclick = ()=> timerPanel.classList.remove("open");
+document.querySelectorAll(".timer-preset").forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll(".timer-preset").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    timerSec = +b.dataset.sec;
+    timerRemain = timerSec;
+    updateTimerDisplay();
+  };
+});
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 1400);
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+updateTimerDisplay();
+renderAll();
+
+// Prevent zoom on double-tap
+let lastTap=0;
+document.addEventListener("touchend",e=>{
+  const now=Date.now();
+  if(now-lastTap<300) e.preventDefault();
+  lastTap=now;
+},{passive:false});
+</script>
+
+</body>
+</html>
