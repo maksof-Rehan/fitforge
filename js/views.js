@@ -1,0 +1,228 @@
+/* ============================================================
+   FitForge · VIEWS (all screen renderers)
+   ============================================================ */
+function setHeader(t,s){document.getElementById('hTitle').textContent=t;document.getElementById('hSub').textContent=s;}
+function setView(v){currentView=v;if(v!=='workout')currentDay=0;renderApp();window.scrollTo({top:0});}
+function renderApp(){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===currentView));
+  document.getElementById('tabs').style.display='none';document.getElementById('progressWrap').style.display='none';
+  document.getElementById('timerFab').classList.remove('show');document.getElementById('timerPanel').classList.remove('open');
+  document.getElementById('hChip').style.display='none';
+  if(currentView!=='workout')stopSession();
+  if(currentView==='home')renderHome();else if(currentView==='workout')renderWorkout();else if(currentView==='diet')renderDiet();else if(currentView==='progress')renderProgress();else if(currentView==='profile')renderProfile();else if(currentView==='plans')renderPlans();
+}
+
+/* ---------- HOME ---------- */
+function renderHome(){
+  const ap=activePlan(),c=calc(profile,ap.goal),g=GOALS[ap.goal];
+  setHeader(profile.name?`Hi, ${profile.name} 👋`:'FitForge',`${g.label} · ${EXP_LABEL[ap.experience]} · ${ap.days} day`);
+  const chip=document.getElementById('hChip');chip.style.display='inline-flex';chip.innerHTML=`<span>${ap.emoji||g.emoji} ${ap.name}</span>`;chip.onclick=()=>setView('plans');
+  const td=PLAN[currentDay%PLAN.length],water=getWater(),wpct=Math.min(100,Math.round(water/WATER_GOAL*100));
+  const q=QUOTES[(new Date().getDate()+new Date().getMonth())%QUOTES.length];
+  document.getElementById('app').innerHTML=`
+    <div class="hero"><h2>${g.emoji} ${g.label}</h2><div class="focus">Today's targets — let's get to work</div>
+      <div class="stats"><div class="stat"><b>${c.bmi}</b><span>BMI · ${c.bmiCat}</span></div><div class="stat"><b>${c.cals}</b><span>Calories</span></div><div class="stat"><b>${c.protein}g</b><span>Protein</span></div></div></div>
+    <div class="quote">“${q}”</div>
+    <div class="grid2"><div class="stat-card accent"><div class="lbl">🔥 Streak</div><div class="val">${streak()}<small> days</small></div></div><div class="stat-card"><div class="lbl">Workouts Done</div><div class="val">${totalWorkouts()}</div></div></div>
+    <div class="grid2" style="margin-top:10px"><div class="stat-card"><div class="lbl">Daily Calories</div><div class="val">${c.cals}<small> kcal</small></div></div><div class="stat-card"><div class="lbl">Maintenance</div><div class="val">${c.tdee}<small> kcal</small></div></div></div>
+    <div class="macro-row"><div class="macro p"><b>${c.protein}g</b><span>Protein</span></div><div class="macro c"><b>${c.carbs}g</b><span>Carbs</span></div><div class="macro f"><b>${c.fat}g</b><span>Fat</span></div></div>
+    <div class="water-card"><div class="water-top"><div class="wt-l">💧 <b>${water}</b><span>/ ${WATER_GOAL} glasses (~3L)</span></div><div class="water-btns"><button id="wMinus">−</button><button class="add" id="wPlus">+</button></div></div><div class="water-bar"><i style="width:${wpct}%"></i></div></div>
+    <div class="section-title">Today's Workout<button id="seeAll">All days →</button></div>
+    <div class="exercise" id="todayWk" style="cursor:pointer"><div class="ex-head"><div class="ex-num" style="font-size:16px">${td.emoji}</div><div class="ex-name"><h3>${td.title}</h3><div class="sub">${td.focus} · ${td.exercises.length} exercises</div></div></div></div>
+    <button class="big-btn" id="goWk">🏋️ Start Workout</button>
+    <button class="ghost-btn" id="goDiet">🍽️ View Today's Diet</button>
+    <div class="section-title">My Plans<button id="mgPlans">Manage →</button></div>
+    ${plans.map(p=>{const pg=GOALS[p.goal];return `<div class="plan-card ${p.id===activePlanId?'active':''}" data-pid="${p.id}"><div class="pc-e">${p.emoji||pg.emoji}</div><div class="pc-t"><b>${p.name}</b><span>${pg.label} · ${EXP_LABEL[p.experience]} · ${p.days} day</span></div>${p.id===activePlanId?'<div class="pc-badge">Active</div>':''}</div>`;}).join('')}
+    <button class="ghost-btn" id="addPlan">＋ Add a New Plan</button><div style="height:8px"></div>`;
+  document.getElementById('goWk').onclick=()=>setView('workout');
+  document.getElementById('todayWk').onclick=()=>setView('workout');
+  document.getElementById('seeAll').onclick=()=>setView('workout');
+  document.getElementById('goDiet').onclick=()=>setView('diet');
+  document.getElementById('mgPlans').onclick=()=>setView('plans');
+  document.getElementById('addPlan').onclick=()=>setView('plans');
+  document.getElementById('wPlus').onclick=()=>changeWater(1);
+  document.getElementById('wMinus').onclick=()=>changeWater(-1);
+  document.querySelectorAll('#app .plan-card').forEach(el=>el.onclick=()=>switchPlan(el.dataset.pid));
+}
+
+/* ---------- PLANS ---------- */
+function switchPlan(id){activePlanId=id;LS.set(uk('active'),id);rebuildPLAN();currentDay=0;showToast('Plan switched');setView('home');}
+function renderPlans(){
+  setHeader('My Plans','Switch · add · customize');
+  document.getElementById('app').innerHTML=`
+    <div class="section-title">My Plans</div>
+    ${plans.map(p=>{const g=GOALS[p.goal];return `<div class="plan-card ${p.id===activePlanId?'active':''}" data-pid="${p.id}"><div class="pc-e">${p.emoji||g.emoji}</div><div class="pc-t"><b>${p.name}</b><span>${g.label} · ${EXP_LABEL[p.experience]} · ${p.days} day</span></div>${p.id===activePlanId?'<div class="pc-badge">Active</div>':`<button class="pc-del" data-del="${p.id}">×</button>`}</div>`;}).join('')||'<div class="info-banner">No plans yet — create one below.</div>'}
+    <div class="section-title">Ready-made Library</div>
+    ${LIBRARY.map((l,i)=>`<div class="plan-card" data-lib="${i}"><div class="pc-e">${l.emoji}</div><div class="pc-t"><b>${l.name}</b><span>${l.desc}</span></div><div class="pc-badge" style="color:var(--accent-2);background:rgba(255,90,60,.12)">＋ Add</div></div>`).join('')}
+    <div class="section-title">Build a Custom Plan</div>
+    <div class="form-card" id="customForm"></div><div style="height:8px"></div>`;
+  document.querySelectorAll('#app .plan-card[data-pid]').forEach(el=>el.onclick=e=>{if(e.target.dataset.del)return;switchPlan(el.dataset.pid);});
+  document.querySelectorAll('#app .pc-del').forEach(b=>b.onclick=e=>{e.stopPropagation();delPlan(b.dataset.del);});
+  document.querySelectorAll('#app .plan-card[data-lib]').forEach(el=>el.onclick=()=>addFromLibrary(+el.dataset.lib));
+  renderCustomForm();
+}
+let cf={name:'',goal:'recomp',experience:'intermediate',days:5};
+function renderCustomForm(){
+  const opt=(key,arr)=>arr.map(o=>`<button class="opt ${cf[key]==o.v?'sel':''}" data-ck="${key}" data-v="${o.v}">${o.t}</button>`).join('');
+  document.getElementById('customForm').innerHTML=`
+    <div class="field"><label>Plan name</label><input id="cf-name" type="text" value="${cf.name}" placeholder="e.g. Summer Cut" /></div>
+    <div class="field"><label>Goal</label><div class="opt-row">${opt('goal',Object.keys(GOALS).map(k=>({v:k,t:GOALS[k].label})))}</div></div>
+    <div class="field"><label>Experience</label><div class="opt-row">${opt('experience',[{v:'beginner',t:'Beginner'},{v:'intermediate',t:'Inter'},{v:'advanced',t:'Advanced'}])}</div></div>
+    <div class="field"><label>Days/week</label><div class="opt-row">${opt('days',[{v:3,t:'3'},{v:4,t:'4'},{v:5,t:'5'},{v:6,t:'6'}])}</div></div>
+    <button class="big-btn" id="cfCreate">✓ Create Plan</button>`;
+  document.querySelectorAll('#customForm .opt').forEach(x=>x.onclick=()=>{let v=x.dataset.v;if(x.dataset.ck==='days')v=+v;cf[x.dataset.ck]=v;cf.name=document.getElementById('cf-name').value;renderCustomForm();});
+  document.getElementById('cfCreate').onclick=()=>{const name=(document.getElementById('cf-name').value||'').trim()||GOALS[cf.goal].label+' Plan';const plan={id:newId(),name,goal:cf.goal,experience:cf.experience,days:cf.days};plans.push(plan);LS.set(uk('plans'),plans);switchPlan(plan.id);};
+}
+function addFromLibrary(i){const l=LIBRARY[i],plan={id:newId(),name:l.name,goal:l.goal,experience:l.experience,days:l.days,emoji:l.emoji};plans.push(plan);LS.set(uk('plans'),plans);switchPlan(plan.id);}
+function delPlan(id){if(plans.length<=1){showToast('Keep at least 1 plan');return;}if(!confirm('Delete this plan?'))return;plans=plans.filter(p=>p.id!==id);LS.set(uk('plans'),plans);Object.keys(localStorage).filter(k=>k.indexOf(uk(`prog-${id}-`))===0).forEach(k=>localStorage.removeItem(k));if(activePlanId===id){activePlanId=plans[0].id;LS.set(uk('active'),activePlanId);rebuildPLAN();}renderPlans();showToast('Deleted');}
+
+/* ---------- WORKOUT ---------- */
+function renderWorkout(){const ap=activePlan();setHeader(ap.name,SPLITS[ap.days].name);document.getElementById('tabs').style.display='flex';document.getElementById('progressWrap').style.display='block';document.getElementById('timerFab').classList.add('show');startSession();renderTabs();renderDay();}
+function renderTabs(){const wrap=document.getElementById('tabs');wrap.innerHTML='';PLAN.forEach((d,idx)=>{const btn=document.createElement('button');btn.className='tab'+(idx===currentDay?' active':'');const prog=loadProgress(idx),total=d.exercises.reduce((a,e)=>a+e.sets,0),done=d.exercises.reduce((a,e,i)=>a+getEx(prog,i).done,0);if(total>0&&done===total)btn.classList.add('done');btn.innerHTML=`<span class="dot"></span>${d.title}`;btn.onclick=()=>{currentDay=idx;renderTabs();renderDay();window.scrollTo({top:0,behavior:'smooth'});};wrap.appendChild(btn);});}
+function renderDay(){
+  const day=getEffectiveDay(currentDay),app=document.getElementById('app'),prog=loadProgress(currentDay),prs=LS.get(uk('prs'),{}),eh=LS.get(uk('exhist'),{});
+  const total=day.exercises.reduce((a,e)=>a+e.sets,0),done=day.exercises.reduce((a,e,i)=>a+getEx(prog,i).done,0);
+  app.innerHTML=`<div class="hero"><h2>${day.emoji} ${day.title}</h2><div class="focus">${day.focus}</div><div class="stats"><div class="stat"><b>${day.exercises.length}</b><span>Exercises</span></div><div class="stat"><b>${total}</b><span>Sets</span></div><div class="stat"><b>${done}</b><span>Done</span></div><div class="stat"><b id="sessTime">00:00</b><span>Session</span></div></div></div>
+    <button class="ghost-btn" id="toolsBtn" style="margin-top:0">🧮 Tools (1RM & Plate Calculator)</button>`;
+  day.exercises.forEach((ex,idx)=>{
+    const exData=getEx(prog,idx),card=document.createElement('div');card.className='exercise';
+    const badges=[`<span class="badge sets">${ex.sets} × ${ex.reps}</span>`];if(ex.dropSet)badges.push(`<span class="badge drop">Drop Set</span>`);
+    if(prs[ex.name])badges.push(`<span class="badge pr">PR ${prs[ex.name]}kg</span>`);
+    const lastArr=eh[ex.name];if(lastArr&&lastArr.length)badges.push(`<span class="badge last">Last ${lastArr[lastArr.length-1].w}kg</span>`);
+    const note=ex.variants.length>1?`<div class="sub">Pick one · ${ex.rest}s rest · beat your last set ↑</div>`:`<div class="sub">${ex.rest}s rest · beat your last set ↑</div>`;
+    let vids=ex.variants.map((v,vi)=>`<button class="vid-btn" data-ex="${idx}" data-v="${vi}"><svg viewBox="0 0 24 24"><path d="M21.58 7.19c-.23-.86-.91-1.54-1.77-1.77C18.25 5 12 5 12 5s-6.25 0-7.81.42c-.86.23-1.54.91-1.77 1.77C2 8.75 2 12 2 12s0 3.25.42 4.81c.23.86.91 1.54 1.77 1.77C5.75 19 12 19 12 19s6.25 0 7.81-.42c.86-.23 1.54-.91 1.77-1.77C22 15.25 22 12 22 12s0-3.25-.42-4.81zM10 15V9l5.2 3L10 15z"/></svg>${v.label}</button>`).join('');
+    if(ex.custom)vids+=`<button class="vid-btn rm" data-rm="${idx}">🗑 Remove</button>`;else vids+=`<button class="vid-btn swap" data-swap="${idx}">🔁 Swap</button>`;
+    const setHtml=Array.from({length:ex.sets}).map((_,s)=>{const isDone=s<exData.done,isDrop=ex.dropSet&&s===ex.sets-1,lg=exData.log[s]||{};return `<div class="set ${isDone?'done':''} ${isDrop?'drop-set':''}" data-ex="${idx}" data-set="${s}" data-rest="${ex.rest}"><div class="set-num">${isDrop?'Drop':'Set '+(s+1)}</div><div class="set-inputs"><input class="s-w" type="number" inputmode="decimal" data-ex="${idx}" data-set="${s}" value="${lg.w??''}" placeholder="kg" /><span class="x">×</span><input class="s-r" type="number" inputmode="numeric" data-ex="${idx}" data-set="${s}" value="${lg.r??''}" placeholder="reps" /></div><div class="set-check"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div></div>`;}).join('');
+    card.innerHTML=`<div class="ex-head"><div class="ex-num">${idx+1}</div><div class="ex-name"><h3>${ex.name}</h3>${note}<div class="badges">${badges.join('')}</div></div></div><div class="videos">${vids}</div><div class="sets">${setHtml}</div>`;
+    app.appendChild(card);
+  });
+  const addBtn=document.createElement('button');addBtn.className='ghost-btn';addBtn.id='addExBtn';addBtn.textContent='＋ Add Exercise';app.appendChild(addBtn);
+  app.querySelectorAll('.vid-btn[data-v]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const ex=day.exercises[+btn.dataset.ex];openVideo(ex,ex.variants[+btn.dataset.v]);}));
+  app.querySelectorAll('.vid-btn[data-swap]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();swapExercise(currentDay,+btn.dataset.swap);}));
+  app.querySelectorAll('.vid-btn[data-rm]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();removeCustomExercise(currentDay,day.baseLen,+btn.dataset.rm);}));
+  document.getElementById('toolsBtn').onclick=openTools;
+  document.getElementById('addExBtn').onclick=()=>openAddExercise(currentDay);
+  app.querySelectorAll('.set').forEach(el=>el.addEventListener('click',e=>{if(e.target.tagName==='INPUT')return;const exIdx=+el.dataset.ex,s=+el.dataset.set,rest=+el.dataset.rest;const prog=loadProgress(currentDay),exData=getEx(prog,exIdx),curr=exData.done;if(s+1===curr)exData.done=curr-1;else exData.done=s+1;prog[exIdx]=exData;saveProgress(currentDay,prog);if(navigator.vibrate)navigator.vibrate(15);if(exData.done===s+1){setTimerSeconds(rest);openTimer(true);}const nt=day.exercises.reduce((a,e)=>a+e.sets,0),nd=day.exercises.reduce((a,e,i)=>a+getEx(prog,i).done,0);if(nt>0&&nd===nt)markComplete(currentDay);renderTabs();renderDay();}));
+  app.querySelectorAll('.s-w, .s-r').forEach(inp=>{inp.addEventListener('click',e=>e.stopPropagation());inp.addEventListener('change',()=>{const exIdx=+inp.dataset.ex,s=+inp.dataset.set,prog=loadProgress(currentDay),exData=getEx(prog,exIdx);exData.log[s]=exData.log[s]||{};if(inp.classList.contains('s-w')){exData.log[s].w=inp.value;updatePR(day.exercises[exIdx].name,+inp.value);}else exData.log[s].r=inp.value;prog[exIdx]=exData;saveProgress(currentDay,prog);});});
+  const pct=total>0?Math.round(done/total*100):0;document.getElementById('progressFill').style.width=pct+'%';document.getElementById('progressText').textContent=`${done} / ${total} sets`;document.getElementById('progressPct').textContent=pct+'%';
+  sessionTick();
+}
+
+/* ---------- DIET ---------- */
+function sumMacros(items){const F=allFoods();return items.reduce((a,it)=>{const f=F[it.f];if(!f)return a;const q=it.q||1;a.cal+=f.cal*q;a.p+=f.p*q;a.c+=f.c*q;a.f+=f.f*q;return a;},{cal:0,p:0,c:0,f:0});}
+function suggestedMeals(){return [
+  {t:"Breakfast",e:"🍳",items:[{f:0,q:3},{f:2,q:2}],extra:"+ tea (low sugar)"},
+  {t:"Pre-Workout",e:"🥭",items:[{f:18,q:1}],extra:"+ coffee · creatine 5g"},
+  {t:"Post-Workout",e:"🥤",items:[{f:17,q:1},{f:19,q:1}],extra:"right after training"},
+  {t:"Main Meal",e:"🍗",items:[{f:4,q:2},{f:11,q:1},{f:25,q:1}],extra:""},
+  {t:"Dinner",e:"🌙",items:[{f:6,q:1.5},{f:2,q:2},{f:24,q:1}],extra:"low oil"},
+  {t:"Before Bed",e:"🥛",items:[{f:15,q:1}],extra:""}
+];}
+function renderDiet(){
+  const ap=activePlan(),c=calc(profile,ap.goal);
+  setHeader('Diet Plan',`${c.cals} kcal · ${c.protein}g protein`);
+  document.getElementById('app').innerHTML=`<div class="seg" style="margin-bottom:14px"><button id="segSug" class="${dietTab==='suggested'?'active':''}">⭐ Suggested</button><button id="segMy" class="${dietTab==='builder'?'active':''}">🛠️ My Plan</button></div><div id="dietBody"></div>`;
+  document.getElementById('segSug').onclick=()=>{dietTab='suggested';renderDiet();};
+  document.getElementById('segMy').onclick=()=>{dietTab='builder';renderDiet();};
+  dietTab==='suggested'?renderSuggested(c):renderBuilder(c);
+}
+function renderSuggested(c){
+  const F=allFoods(),meals=suggestedMeals(),tot=sumMacros(meals.flatMap(m=>m.items));
+  document.getElementById('dietBody').innerHTML=`
+    <div class="info-banner">Tailored to your goal. This plan ≈ <b>${Math.round(tot.cal)} kcal</b>, <b>${Math.round(tot.p)}g protein</b>. Your target: ${c.cals} kcal / ${c.protein}g. Adjust portions to match.</div>
+    ${meals.map(m=>{const ms=sumMacros(m.items),li=m.items.map(it=>`${it.q!==1?it.q+'× ':''}${F[it.f].n}`).join(' + ');return `<div class="exercise"><div class="ex-head"><div class="ex-num" style="font-size:15px">${m.e}</div><div class="ex-name"><h3>${m.t}</h3><div class="sub">${Math.round(ms.cal)} kcal · ${Math.round(ms.p)}g protein</div></div></div><div class="diet-items"><div class="diet-item">• ${li}${m.extra?` <span style="color:var(--muted)">${m.extra}</span>`:''}</div></div></div>`;}).join('')}
+    <div class="info-banner">💡 Eat sugary fruit around your workout · keep oil low for fat loss · drink 3-4L water daily.</div>
+    <button class="ghost-btn" id="copyToMy">📋 Copy to "My Plan" to edit</button>`;
+  document.getElementById('copyToMy').onclick=()=>{LS.set(uk('diet'),suggestedMeals().flatMap(m=>m.items.map(it=>({f:it.f,q:it.q}))));dietTab='builder';renderDiet();showToast('Copied');};
+}
+function renderBuilder(c){
+  const F=allFoods(),items=LS.get(uk('diet'),[]),tot=sumMacros(items),meals=LS.get(uk('meals'),[]);
+  logCalorieDay(tot.cal,tot.p);
+  const bar=(val,target,cls)=>{const pct=target>0?Math.min(100,Math.round(val/target*100)):0,over=val>target*1.05;return `<div class="tline"><span>${cls.toUpperCase()}</span><span>${Math.round(val)} / ${target}${cls==='cal'?' kcal':'g'}</span></div><div class="tbar ${cls} ${over?'over':''}"><i style="width:${pct}%"></i></div>`;};
+  document.getElementById('dietBody').innerHTML=`
+    <div class="target-card">${bar(tot.cal,c.cals,'cal')}${bar(tot.p,c.protein,'p')}${bar(tot.c,c.carbs,'c')}${bar(tot.f,c.fat,'f')}</div>
+    ${meals.length?`<div class="section-title" style="margin-top:0">Saved Meals (tap to add)</div><div class="chips">${meals.map((m,i)=>`<span class="mchip" data-meal="${i}">${m.name}<span class="mc-x" data-delmeal="${i}">×</span></span>`).join('')}</div>`:''}
+    <div class="food-add"><select id="foodSel">${F.map((f,i)=>`<option value="${i}">${f.n} (${f.u}) · ${f.p}g P</option>`).join('')}</select><input id="foodQty" type="number" inputmode="decimal" value="1" min="0.5" step="0.5" /><button id="foodAdd">+</button></div>
+    <div id="foodList"></div>
+    <div class="grid2" style="margin-top:4px"><button class="ghost-btn" id="addFood" style="margin-top:0">＋ Custom Food</button><button class="ghost-btn" id="saveMeal" style="margin-top:0">💾 Save as Meal</button></div>
+    ${items.length?`<button class="ghost-btn danger-btn" id="clearDiet">🗑️ Clear all</button>`:`<div class="info-banner">Add food above — the app sums calories + protein vs your target. Save combos as meals to reuse. 💪</div>`}
+    ${calorieHistoryChart()}`;
+  document.getElementById('foodList').innerHTML=items.map((it,i)=>{const f=F[it.f];if(!f)return '';return `<div class="food-row"><div class="fr-name">${f.n}<span>${it.q} × ${f.u} · ${Math.round(f.cal*it.q)} kcal</span></div><div class="fr-p">${Math.round(f.p*it.q)}g P</div><button class="fr-del" data-i="${i}">×</button></div>`;}).join('');
+  document.getElementById('foodAdd').onclick=()=>{const f=+document.getElementById('foodSel').value,q=+document.getElementById('foodQty').value||1,arr=LS.get(uk('diet'),[]);arr.push({f,q});LS.set(uk('diet'),arr);renderBuilder(c);};
+  document.querySelectorAll('#foodList .fr-del').forEach(b=>b.onclick=()=>{const arr=LS.get(uk('diet'),[]);arr.splice(+b.dataset.i,1);LS.set(uk('diet'),arr);renderBuilder(c);});
+  document.getElementById('addFood').onclick=openAddFood;
+  document.getElementById('saveMeal').onclick=()=>{if(!items.length){showToast('Add foods first');return;}const name=(prompt('Meal name (e.g. My Breakfast):')||'').trim();if(!name)return;const arr=LS.get(uk('meals'),[]);arr.push({name,items:items.slice()});LS.set(uk('meals'),arr);renderBuilder(c);showToast('Meal saved');};
+  document.querySelectorAll('.mchip[data-meal]').forEach(ch=>ch.onclick=e=>{if(e.target.dataset.delmeal!=null)return;const m=meals[+ch.dataset.meal],arr=LS.get(uk('diet'),[]);m.items.forEach(it=>arr.push({f:it.f,q:it.q}));LS.set(uk('diet'),arr);renderBuilder(c);showToast('Meal added');});
+  document.querySelectorAll('.mc-x[data-delmeal]').forEach(x=>x.onclick=e=>{e.stopPropagation();const arr=LS.get(uk('meals'),[]);arr.splice(+x.dataset.delmeal,1);LS.set(uk('meals'),arr);renderBuilder(c);});
+  const cd=document.getElementById('clearDiet');if(cd)cd.onclick=()=>{if(confirm('Clear your diet plan?')){LS.set(uk('diet'),[]);renderBuilder(c);}};
+}
+function calorieHistoryChart(){
+  const all=LS.get(uk('calhist'),{}),keys=Object.keys(all).sort().slice(-7);
+  if(keys.length<2)return '';
+  const vals=keys.map(k=>all[k].cal),max=Math.max(...vals)||1,W=300,H=110,pad=10,n=keys.length;
+  const bars=keys.map((k,i)=>{const bw=(W-2*pad)/n-6,x=pad+i*((W-2*pad)/n)+3,h=(all[k].cal/max)*(H-2*pad),y=H-pad-h;return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="#ff5a3c"/>`;}).join('');
+  return `<div class="chart"><div class="ct">📊 Calorie intake (last ${n} days)</div><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${bars}</svg></div>`;
+}
+
+/* ---------- PROGRESS ---------- */
+function renderProgress(){
+  setHeader('Progress','Weight · records · body');
+  const log=LS.get(uk('weights'),[]),app=document.getElementById('app'),prs=LS.get(uk('prs'),{});
+  let chart='';
+  if(log.length>=2){const ws=log.map(x=>x.w),min=Math.min(...ws),max=Math.max(...ws),range=(max-min)||1,n=log.length,W=300,H=120,pad=12;const pts=log.map((x,i)=>{const px=pad+(i/(n-1))*(W-2*pad),py=pad+(1-(x.w-min)/range)*(H-2*pad);return `${px.toFixed(1)},${py.toFixed(1)}`;}).join(' ');chart=`<div class="chart"><div class="ct">⚖️ Body weight</div><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="#ff5a3c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${log.map((x,i)=>{const px=pad+(i/(n-1))*(W-2*pad),py=pad+(1-(x.w-min)/range)*(H-2*pad);return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3" fill="#ff9556"/>`;}).join('')}</svg></div>`;}
+  const first=log[0],last=log[log.length-1],change=(first&&last)?(last.w-first.w).toFixed(1):null,ap=activePlan();
+  const prEntries=Object.keys(prs).map(k=>({n:k,w:prs[k]})).sort((a,b)=>b.w-a.w).slice(0,10);
+  const meas=LS.get(uk('measure'),[]),lastM=meas[meas.length-1];
+  const wkW=workoutsInLastDays(7);
+  app.innerHTML=`
+    <div class="section-title" style="margin-top:0">This Week</div>
+    <div class="grid3"><div class="stat-card"><div class="lbl">Workouts</div><div class="val">${wkW}</div></div><div class="stat-card"><div class="lbl">Streak</div><div class="val">${streak()}</div></div><div class="stat-card"><div class="lbl">Best PR</div><div class="val">${prEntries[0]?prEntries[0].w:'—'}<small>kg</small></div></div></div>
+    <div class="grid2" style="margin-top:10px"><div class="stat-card accent"><div class="lbl">Current Weight</div><div class="val">${last?last.w:profile.weight}<small> kg</small></div></div><div class="stat-card"><div class="lbl">Total Change</div><div class="val" style="${change>0?'color:var(--warn)':change<0?'color:var(--ok)':''}">${change!==null?(change>0?'+':'')+change:'—'}<small> kg</small></div></div></div>
+    ${chart}
+    <div class="food-add" style="margin-top:14px"><input id="wInput" type="number" inputmode="decimal" placeholder="Today's weight (kg)" style="flex:1;text-align:left" /><button id="wAdd">+</button></div>
+    <div class="section-title">🏆 Personal Records<span style="color:var(--muted);font-weight:600;text-transform:none">tap for graph</span></div>
+    ${prEntries.length?prEntries.map(p=>`<div class="pr-row" data-pr="${encodeURIComponent(p.n)}"><span>${p.n}</span><b>${p.w} kg</b></div>`).join(''):'<div class="info-banner">Log set weights during workouts — your best lift per exercise appears here automatically. 💪</div>'}
+    <div class="section-title">📏 Body Measurements (cm)</div>
+    <div class="grid3"><input class="ms-i" id="ms-waist" type="number" inputmode="decimal" placeholder="Waist" /><input class="ms-i" id="ms-chest" type="number" inputmode="decimal" placeholder="Chest" /><input class="ms-i" id="ms-arms" type="number" inputmode="decimal" placeholder="Arms" /></div>
+    <button class="ghost-btn" id="msAdd">＋ Save Measurements</button>
+    ${lastM?`<div class="info-banner" style="margin-top:10px">Last (${lastM.d}): Waist <b>${lastM.waist||'—'}</b> · Chest <b>${lastM.chest||'—'}</b> · Arms <b>${lastM.arms||'—'}</b> cm</div>`:''}
+    <div class="section-title">🏅 Achievements</div>
+    <div class="ach-grid" id="achGrid"></div>`;
+  document.querySelectorAll('.ms-i').forEach(i=>{i.style.cssText='background:var(--bg-2);border:1px solid var(--border);color:var(--text);border-radius:11px;padding:12px;font-size:14px;font-weight:700;text-align:center;width:100%';});
+  document.getElementById('wAdd').onclick=()=>{const v=+document.getElementById('wInput').value;if(!v){showToast('Enter weight');return;}const d=new Date(),ds=`${d.getDate()}/${d.getMonth()+1}/${String(d.getFullYear()).slice(2)}`,arr=LS.get(uk('weights'),[]);arr.push({w:v,d:ds,iso:dateKey()});LS.set(uk('weights'),arr);renderProgress();showToast('Logged');};
+  document.getElementById('msAdd').onclick=()=>{const waist=+document.getElementById('ms-waist').value||null,chest=+document.getElementById('ms-chest').value||null,arms=+document.getElementById('ms-arms').value||null;if(!waist&&!chest&&!arms){showToast('Enter at least one');return;}const d=new Date(),ds=`${d.getDate()}/${d.getMonth()+1}/${String(d.getFullYear()).slice(2)}`,arr=LS.get(uk('measure'),[]);arr.push({d:ds,waist,chest,arms});LS.set(uk('measure'),arr);renderProgress();showToast('Saved');};
+  document.querySelectorAll('.pr-row[data-pr]').forEach(r=>r.onclick=()=>openExerciseChart(decodeURIComponent(r.dataset.pr)));
+  // achievements
+  const st=achievementState();document.getElementById('achGrid').innerHTML=ACHIEVEMENTS.map(a=>`<div class="ach ${a.test(st)?'on':''}"><div class="ae">${a.e}</div><div class="at"><b>${a.t}</b><span>${a.d}</span></div></div>`).join('');
+}
+
+/* ---------- PROFILE ---------- */
+function renderProfile(){
+  setHeader('Profile','Account & settings');
+  const ap=activePlan(),c=calc(profile,ap.goal),isLight=LS.get('ff-theme','dark')==='light';
+  document.getElementById('app').innerHTML=`
+    <div class="form-card">
+      <div class="pf-row"><span>Account</span><b>${profile.name||'—'}</b></div>
+      <div class="pf-row"><span>Email</span><b style="font-size:12px">${fbEmail||'—'}</b></div>
+      <div class="pf-row"><span>Gender / Age</span><b>${profile.gender==='female'?'Female':'Male'} · ${profile.age} yrs</b></div>
+      <div class="pf-row"><span>Height / Weight</span><b>${profile.height} cm · ${profile.weight} kg</b></div>
+      <div class="pf-row"><span>BMI</span><b>${c.bmi} (${c.bmiCat})</b></div>
+      <div class="pf-row"><span>Active Plan</span><b>${ap.name}</b></div>
+      <div class="pf-row"><span>Target</span><b>${c.cals} kcal · ${c.protein}g P</b></div>
+    </div>
+    <button class="big-btn" id="editStats">✏️ Edit Body Stats</button>
+    <button class="ghost-btn" id="shareBtn">📤 Share My Progress</button>
+    <button class="ghost-btn" id="themeBtn">${isLight?'🌙 Dark Mode':'☀️ Light Mode'}</button>
+    <button class="ghost-btn" id="goPlans">📋 Manage My Plans</button>
+    <button class="ghost-btn" id="resetDay">🔄 Reset Today's Workout</button>
+    <button class="ghost-btn danger-btn" id="logoutBtn">🚪 Logout</button>
+    <div class="info-banner" style="margin-top:14px">📱 <b>Install:</b> browser menu → "Add to Home Screen". Your data syncs to the cloud across devices.</div>
+    <div style="text-align:center;color:var(--muted);font-size:11px;padding:10px">FitForge · v5.0 💪</div>`;
+  document.getElementById('editStats').onclick=editStats;
+  document.getElementById('shareBtn').onclick=shareProgress;
+  document.getElementById('themeBtn').onclick=()=>{toggleTheme();renderProfile();};
+  document.getElementById('goPlans').onclick=()=>setView('plans');
+  document.getElementById('resetDay').onclick=()=>{if(confirm("Reset today's workout?")){LS.del(progressKey(currentDay));showToast('Reset');}};
+  document.getElementById('logoutBtn').onclick=()=>{if(confirm('Logout?'))logout();};
+}
+function editStats(){const apx=activePlan();wz={name:profile.name,gender:profile.gender,age:profile.age,height:profile.height,weight:profile.weight,goal:apx.goal,experience:apx.experience,days:apx.days,activity:profile.activity};wzStep=1;finishWizardOverride=true;document.getElementById('wizard').classList.add('show');renderWizard();}
