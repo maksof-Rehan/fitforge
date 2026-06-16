@@ -337,6 +337,20 @@
   <button class="nav-item" data-view="profile"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Profile</button>
 </nav>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCdyvi6_3GanXcgEFVktQiLE3G60oSDEqQ",
+    authDomain: "fitforge-8b3ea.firebaseapp.com",
+    projectId: "fitforge-8b3ea",
+    storageBucket: "fitforge-8b3ea.firebasestorage.app",
+    messagingSenderId: "970722477867",
+    appId: "1:970722477867:web:f0182fc7160779161da76e"
+  };
+  if(typeof firebase!=='undefined') firebase.initializeApp(firebaseConfig);
+</script>
 <script>
 /* ============================================================ STORAGE */
 const LS={ get(k,d){ try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;} }, set(k,v){localStorage.setItem(k,JSON.stringify(v));}, del(k){localStorage.removeItem(k);} };
@@ -407,10 +421,17 @@ function calc(profile,goalKey){
 }
 
 /* ============================================================ AUTH / STATE */
-let currentUser=LS.get('ff-session',null);
+let currentUser=null, fbEmail=null, pendingName='', db=null, auth=null;
 let profile=null,plans=[],activePlanId=null,PLAN=[];
 let currentView='home',currentDay=0,dietTab='suggested',authMode='login';
 const uk=k=>`ff:${currentUser}:${k}`;
+/* ---- CLOUD SYNC: mirror this user's localStorage keys to one Firestore doc ---- */
+const _lsset=LS.set;
+LS.set=function(k,v){ _lsset.call(LS,k,v); if(currentUser && k.indexOf('ff:'+currentUser+':')===0) scheduleSync(); };
+let syncT=null;
+function scheduleSync(){ if(!db||!currentUser)return; clearTimeout(syncT); syncT=setTimeout(pushCloud,1500); }
+function pushCloud(){ if(!db||!currentUser)return; const pre='ff:'+currentUser+':',blob={}; for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf(pre)===0)blob[k.slice(pre.length)]=localStorage.getItem(k);} db.collection('users').doc(currentUser).set({blob,email:fbEmail||''}).catch(e=>console.warn('sync up',e&&e.code)); }
+async function pullCloud(uid){ try{ const snap=await db.collection('users').doc(uid).get(); if(snap.exists){ const blob=(snap.data()||{}).blob||{}; Object.keys(blob).forEach(sub=>{ try{localStorage.setItem('ff:'+uid+':'+sub,blob[sub]);}catch(e){} }); } }catch(e){ console.warn('sync down',e&&e.code); } }
 function loadUser(){ profile=LS.get(uk('profile'),null); plans=LS.get(uk('plans'),[]); activePlanId=LS.get(uk('active'),plans[0]?plans[0].id:null); }
 function activePlan(){ return plans.find(p=>p.id===activePlanId)||plans[0]; }
 function rebuildPLAN(){ const ap=activePlan(); PLAN=ap?buildPlan(ap):[]; }
@@ -446,33 +467,25 @@ function doAuth(){
   const email=(document.getElementById('a-email').value||'').trim().toLowerCase();
   const pass=document.getElementById('a-pass').value||'';
   if(!email||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return authError('Sahi email daalo');
-  if(pass.length<4)return authError('Password kam se kam 4 character ka ho');
-  const users=LS.get('ff-users',{});
+  if(pass.length<6)return authError('Password kam se kam 6 character ka ho');
+  if(!auth)return authError('Internet check karo (Firebase load nahi hua)');
+  const btn=document.getElementById('authGo'); btn.disabled=true; const oldT=btn.textContent; btn.textContent='⏳ ...';
+  const fail=e=>{ btn.disabled=false; btn.textContent=oldT; authError(fbErr(e)); };
   if(authMode==='signup'){
-    const name=(document.getElementById('a-name').value||'').trim();
-    if(!name)return authError('Naam daalo');
-    if(users[email])return authError('Ye email pehle se registered hai — Login karo');
-    users[email]={email,name,pass:btoa(pass)};LS.set('ff-users',users);
-    currentUser=email;LS.set('ff-session',email);
-    document.getElementById('auth').classList.remove('show');
-    loadUser();startWizard();
+    pendingName=(document.getElementById('a-name').value||'').trim();
+    if(!pendingName){ fail({code:'noname'}); return authError('Naam daalo'); }
+    auth.createUserWithEmailAndPassword(email,pass).catch(fail);
   }else{
-    if(!users[email])return authError('Account nahi mila — Sign Up karo');
-    if(users[email].pass!==btoa(pass))return authError('Galat password');
-    currentUser=email;LS.set('ff-session',email);
-    document.getElementById('auth').classList.remove('show');
-    loadUser();
-    if(profile&&plans.length){bootUI();showToast('Welcome back 👋');}
-    else startWizard();
+    auth.signInWithEmailAndPassword(email,pass).catch(fail);
   }
 }
-function logout(){LS.del('ff-session');currentUser=null;profile=null;plans=[];location.reload();}
+function fbErr(e){const c=(e&&e.code)||'';if(c.includes('email-already-in-use'))return 'Ye email pehle se hai — Login karo';if(c.includes('invalid-email'))return 'Email galat hai';if(c.includes('weak-password'))return 'Password kamzor (6+ char)';if(c.includes('user-not-found'))return 'Account nahi mila — Sign Up karo';if(c.includes('wrong-password')||c.includes('invalid-credential'))return 'Galat email ya password';if(c.includes('network'))return 'Internet check karo';if(c.includes('too-many'))return 'Bahut tries — thodi der baad';if(c.includes('operation-not-allowed'))return 'Email/Password login Firebase me ON karo';return (e&&e.message)||'Error aaya';}
+function logout(){ if(auth) auth.signOut(); }
 
 /* ============================================================ WIZARD */
 let wz={};let wzStep=1;
 function startWizard(){
-  const users=LS.get('ff-users',{});
-  wz={name:(users[currentUser]&&users[currentUser].name)||'',gender:'male',goal:'recomp',experience:'intermediate',days:6,activity:'light'};
+  wz={name:pendingName||(profile&&profile.name)||'',gender:'male',goal:'recomp',experience:'intermediate',days:6,activity:'light'};
   wzStep=1;document.getElementById('wizard').classList.add('show');renderWizard();
 }
 function renderWizard(){
@@ -709,11 +722,11 @@ function renderProgress(){
 /* ---------- PROFILE ---------- */
 function renderProfile(){
   setHeader('Profile','Account & settings');
-  const ap=activePlan(),c=calc(profile,ap.goal),g=GOALS[ap.goal],users=LS.get('ff-users',{});
+  const ap=activePlan(),c=calc(profile,ap.goal),g=GOALS[ap.goal];
   document.getElementById('app').innerHTML=`
     <div class="form-card">
-      <div class="pf-row"><span>Account</span><b>${(users[currentUser]&&users[currentUser].name)||profile.name||'—'}</b></div>
-      <div class="pf-row"><span>Email</span><b style="font-size:12px">${currentUser}</b></div>
+      <div class="pf-row"><span>Account</span><b>${profile.name||'—'}</b></div>
+      <div class="pf-row"><span>Email</span><b style="font-size:12px">${fbEmail||'—'}</b></div>
       <div class="pf-row"><span>Gender / Age</span><b>${profile.gender==='female'?'Female':'Male'} · ${profile.age} yrs</b></div>
       <div class="pf-row"><span>Height / Weight</span><b>${profile.height} cm · ${profile.weight} kg</b></div>
       <div class="pf-row"><span>BMI</span><b>${c.bmi} (${c.bmiCat})</b></div>
@@ -783,10 +796,23 @@ let toastTimer;function showToast(m){const t=document.getElementById('toast');t.
 document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>setView(n.dataset.view));
 function bootUI(){document.getElementById('bottomNav').style.display='flex';rebuildPLAN();updateTimerDisplay();renderApp();}
 function boot(){
-  if(!currentUser){showAuth();return;}
-  loadUser();
-  if(profile&&plans.length)bootUI();
-  else startWizard();
+  if(typeof firebase==='undefined'){ showAuth(); setTimeout(()=>authError('Internet zaroori hai — Firebase load nahi hua'),300); return; }
+  auth=firebase.auth(); db=firebase.firestore();
+  try{ db.enablePersistence({synchronizeTabs:true}).catch(()=>{}); }catch(e){}
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      currentUser=user.uid; fbEmail=user.email; currentView='home'; currentDay=0;
+      document.getElementById('auth').classList.remove('show');
+      await pullCloud(user.uid);
+      loadUser();
+      if(profile&&plans.length){ bootUI(); } else { startWizard(); }
+    }else{
+      currentUser=null; profile=null; plans=[]; pendingName='';
+      document.getElementById('bottomNav').style.display='none';
+      document.getElementById('wizard').classList.remove('show');
+      showAuth();
+    }
+  });
 }
 let lastTap=0;document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTap<300)e.preventDefault();lastTap=now;},{passive:false});
 boot();
