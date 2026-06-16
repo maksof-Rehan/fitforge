@@ -479,7 +479,7 @@ function doAuth(){
     auth.signInWithEmailAndPassword(email,pass).catch(fail);
   }
 }
-function fbErr(e){const c=(e&&e.code)||'';if(c.includes('email-already-in-use'))return 'Ye email pehle se hai — Login karo';if(c.includes('invalid-email'))return 'Email galat hai';if(c.includes('weak-password'))return 'Password kamzor (6+ char)';if(c.includes('user-not-found'))return 'Account nahi mila — Sign Up karo';if(c.includes('wrong-password')||c.includes('invalid-credential'))return 'Galat email ya password';if(c.includes('network'))return 'Internet check karo';if(c.includes('too-many'))return 'Bahut tries — thodi der baad';if(c.includes('operation-not-allowed'))return 'Email/Password login Firebase me ON karo';return (e&&e.message)||'Error aaya';}
+function fbErr(e){const c=(e&&e.code)||'';if(c.includes('email-already-in-use'))return 'Ye email pehle se hai — Login karo';if(c.includes('invalid-email'))return 'Email galat hai';if(c.includes('weak-password'))return 'Password kamzor (6+ char)';if(c.includes('user-not-found'))return 'Account nahi mila — Sign Up karo';if(c.includes('wrong-password')||c.includes('invalid-credential'))return 'Galat email ya password';if(c.includes('network'))return 'Internet check karo';if(c.includes('too-many'))return 'Bahut tries — thodi der baad';if(c.includes('operation-not-allowed')||c.includes('configuration-not-found'))return 'Firebase me Authentication ON karo (Email/Password enable)';return (e&&e.message)||'Error aaya';}
 function logout(){ if(auth) auth.signOut(); }
 
 /* ============================================================ WIZARD */
