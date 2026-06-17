@@ -63,13 +63,13 @@ function calc(profile,goalKey){
 function getEffectiveDay(dayIdx){
   const day=PLAN[dayIdx],sw=(LS.get(uk('swap-'+activePlanId),{})[dayIdx])||{};
   let exercises=day.exercises.map((ex,i)=>{if(sw[i]!=null){const alt=EX_POOL[ex.cat][sw[i]];return Object.assign({},ex,{name:alt.name,variants:alt.variants,srcIdx:sw[i]});}return ex;});
-  const custom=(LS.get(uk('customEx-'+activePlanId),{})[dayIdx])||[];
-  custom.forEach(c=>exercises.push({name:c.name,sets:c.sets||3,reps:c.reps||GOALS[activePlan().goal].reps,rest:c.rest||75,dropSet:false,variants:[{label:"Tutorial",q:c.name+" exercise form"}],cat:c.cat||'chest',srcIdx:-1,custom:true}));
+  const custom=(LS.get(uk('customEx-'+activePlanId),{})[dayIdx])||[],g=GOALS[activePlan().goal];
+  custom.forEach(c=>exercises.push({name:c.name,sets:c.sets||3,reps:g.reps,rest:c.c?g.restC:g.restI,dropSet:false,variants:c.variants||[{label:"Tutorial",q:c.name+" exercise form"}],cat:c.cat||'chest',srcIdx:-1,custom:true}));
   return{title:day.title,focus:day.focus,emoji:day.emoji,exercises,baseLen:day.exercises.length};
 }
 /* Pick a specific alternative exercise for a slot (from the muscle's best-5 list) */
 function chooseExercise(dayIdx,exIdx,poolIdx){const all=LS.get(uk('swap-'+activePlanId),{});all[dayIdx]=all[dayIdx]||{};all[dayIdx][exIdx]=poolIdx;LS.set(uk('swap-'+activePlanId),all);renderDay();showToast('Exercise updated');}
-function addCustomExercise(dayIdx,name,cat){const all=LS.get(uk('customEx-'+activePlanId),{});all[dayIdx]=all[dayIdx]||[];all[dayIdx].push({name,cat});LS.set(uk('customEx-'+activePlanId),all);renderDay();showToast('Exercise added');}
+function addCustomExercise(dayIdx,exObj){const all=LS.get(uk('customEx-'+activePlanId),{});all[dayIdx]=all[dayIdx]||[];all[dayIdx].push(exObj);LS.set(uk('customEx-'+activePlanId),all);renderDay();showToast('Added to plan');}
 function removeCustomExercise(dayIdx,baseLen,exIdx){const all=LS.get(uk('customEx-'+activePlanId),{}),arr=all[dayIdx]||[];arr.splice(exIdx-baseLen,1);all[dayIdx]=arr;LS.set(uk('customEx-'+activePlanId),all);renderDay();showToast('Removed');}
 
 /* ----- HISTORY / STREAK / PRs / EXERCISE HISTORY ----- */

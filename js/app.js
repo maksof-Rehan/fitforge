@@ -109,13 +109,21 @@ function openAltPicker(dayIdx,exIdx){
   document.querySelectorAll('#modalBox .goal-card[data-alt]').forEach(el=>el.onclick=()=>{chooseExercise(dayIdx,exIdx,+el.dataset.alt);closeModal();});
 }
 
-/* ===== ADD CUSTOM EXERCISE ===== */
-function openAddExercise(dayIdx){
+/* ===== ADD EXERCISE (database-driven) ===== */
+let addExMuscle='chest';
+function openAddExercise(dayIdx){addExMuscle='chest';renderAddEx(dayIdx);}
+function renderAddEx(dayIdx){
+  const pool=EX_POOL[addExMuscle];
   openModal(`${modalHead('＋ Add Exercise')}
-    <div class="field"><label>Exercise name</label><input id="ae-n" type="text" placeholder="e.g. Cable Row"/></div>
-    <div class="field"><label>Muscle group</label><select id="ae-c">${Object.keys(MUSCLE_LABELS).map(k=>`<option value="${k}">${MUSCLE_LABELS[k]}</option>`).join('')}</select></div>
-    <button class="big-btn" id="aeSave">Add to Day</button>`);
-  document.getElementById('aeSave').onclick=()=>{const n=(document.getElementById('ae-n').value||'').trim();if(!n){showToast('Enter name');return;}addCustomExercise(dayIdx,n,document.getElementById('ae-c').value);closeModal();};
+    <div class="field"><label>Muscle group</label><select id="ae-c">${Object.keys(MUSCLE_LABELS).map(k=>`<option value="${k}" ${k===addExMuscle?'selected':''}>${MUSCLE_LABELS[k]}</option>`).join('')}</select></div>
+    <div class="section-title" style="margin-top:4px">${MUSCLE_LABELS[addExMuscle]} — tap to add</div>
+    ${pool.map((p,i)=>`<div class="goal-card" data-add="${i}"><div class="gc-emoji">${p.c?'🏋️':'🎯'}</div><div class="gc-t"><b>${p.name}</b><span>${p.c?'Compound':'Isolation'} · ${p.variants.map(v=>v.label).join(' / ')}</span></div><div class="pc-badge" style="color:var(--accent-2);background:rgba(255,90,60,.12)">＋ Add</div></div>`).join('')}
+    <div class="section-title">Or add your own</div>
+    <div class="field"><input id="ae-n" type="text" placeholder="Custom exercise name"/></div>
+    <button class="ghost-btn" id="ae-custom" style="margin-top:0">＋ Add Custom</button>`);
+  document.getElementById('ae-c').onchange=e=>{addExMuscle=e.target.value;renderAddEx(dayIdx);};
+  document.querySelectorAll('#modalBox .goal-card[data-add]').forEach(el=>el.onclick=()=>{const p=pool[+el.dataset.add];addCustomExercise(dayIdx,{name:p.name,cat:addExMuscle,variants:p.variants,c:p.c});closeModal();});
+  document.getElementById('ae-custom').onclick=()=>{const n=(document.getElementById('ae-n').value||'').trim();if(!n){showToast('Enter a name');return;}addCustomExercise(dayIdx,{name:n,cat:addExMuscle,c:0});closeModal();};
 }
 
 /* ===== EXERCISE PROGRESS CHART ===== */
@@ -171,7 +179,15 @@ let toastTimer;function showToast(m){const t=document.getElementById('toast');t.
 
 /* ===== BOOT ===== */
 document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>setView(n.dataset.view));
-function bootUI(){document.getElementById('bottomNav').style.display='flex';rebuildPLAN();updateTimerDisplay();renderApp();}
+function bootUI(){document.getElementById('bottomNav').style.display='flex';rebuildPLAN();updateTimerDisplay();try{history.replaceState({view:'home'},'');}catch(e){}renderApp();}
+/* App-like Back button: close overlays first, else go to previous screen (only exits from Home) */
+window.addEventListener('popstate',e=>{
+  if(!currentUser)return;
+  if(vidModal.classList.contains('open')){closeVideo();try{history.pushState({view:currentView},'');}catch(_){}return;}
+  if(modal.classList.contains('open')){closeModal();try{history.pushState({view:currentView},'');}catch(_){}return;}
+  if(document.getElementById('wizard').classList.contains('show'))return;
+  const v=(e.state&&e.state.view)||'home';currentView=v;if(v!=='workout')currentDay=0;renderApp();window.scrollTo({top:0});
+});
 function boot(){
   applyTheme();
   if(typeof firebase==='undefined'){showAuth();setTimeout(()=>authError('Internet required — Firebase did not load'),300);return;}
