@@ -9,15 +9,17 @@ function renderApp(){
   document.getElementById('timerFab').classList.remove('show');document.getElementById('timerPanel').classList.remove('open');
   document.getElementById('hChip').style.display='none';
   if(currentView!=='workout')stopSession();
-  if(currentView==='home')renderHome();else if(currentView==='workout')renderWorkout();else if(currentView==='diet')renderDiet();else if(currentView==='progress')renderProgress();else if(currentView==='profile')renderProfile();else if(currentView==='plans')renderPlans();
+  if(currentView==='home')renderHome();else if(currentView==='workout')renderWorkout();else if(currentView==='diet')renderDiet();else if(currentView==='progress')renderProgress();else if(currentView==='profile')renderProfile();else if(currentView==='plans')renderPlans();else if(currentView==='calendar')renderCalendar();
 }
+let calRef=null;
 
 /* ---------- HOME ---------- */
 function renderHome(){
   const ap=activePlan(),c=calc(profile,ap.goal),g=GOALS[ap.goal];
   setHeader(profile.name?`Hi, ${profile.name} 👋`:'FitForge',`${g.label} · ${EXP_LABEL[ap.experience]} · ${ap.days} day`);
   const chip=document.getElementById('hChip');chip.style.display='inline-flex';chip.innerHTML=`<span>${ap.emoji||g.emoji} ${ap.name}</span>`;chip.onclick=()=>setView('plans');
-  const td=PLAN[currentDay%PLAN.length],water=getWater(),wpct=Math.min(100,Math.round(water/WATER_GOAL*100));
+  const sched=LS.get(uk('schedule'),{}),schedIdx=sched[new Date().getDay()],hd=(schedIdx!=null?schedIdx:currentDay)%PLAN.length;
+  const td=PLAN[hd],water=getWater(),wpct=Math.min(100,Math.round(water/WATER_GOAL*100));
   const q=QUOTES[(new Date().getDate()+new Date().getMonth())%QUOTES.length];
   document.getElementById('app').innerHTML=`
     <div class="hero"><h2>${g.emoji} ${g.label}</h2><div class="focus">Today's targets — let's get to work</div>
@@ -28,16 +30,18 @@ function renderHome(){
     <div class="macro-row"><div class="macro p"><b>${c.protein}g</b><span>Protein</span></div><div class="macro c"><b>${c.carbs}g</b><span>Carbs</span></div><div class="macro f"><b>${c.fat}g</b><span>Fat</span></div></div>
     <div class="water-card"><div class="water-top"><div class="wt-l">💧 <b>${water}</b><span>/ ${WATER_GOAL} glasses (~3L)</span></div><div class="water-btns"><button id="wMinus">−</button><button class="add" id="wPlus">+</button></div></div><div class="water-bar"><i style="width:${wpct}%"></i></div></div>
     <div class="section-title">Today's Workout<button id="seeAll">All days →</button></div>
-    <div class="exercise" id="todayWk" style="cursor:pointer"><div class="ex-head"><div class="ex-num" style="font-size:16px">${td.emoji}</div><div class="ex-name"><h3>${td.title}</h3><div class="sub">${td.focus} · ${td.exercises.length} exercises</div></div></div></div>
+    <div class="exercise" id="todayWk" style="cursor:pointer"><div class="ex-head"><div class="ex-num" style="font-size:16px">${td.emoji}</div><div class="ex-name"><h3>${td.title}</h3><div class="sub">${schedIdx!=null?'📅 Scheduled today · ':''}${td.focus} · ${td.exercises.length} exercises</div></div></div></div>
     <button class="big-btn" id="goWk">🏋️ Start Workout</button>
     <button class="ghost-btn" id="goDiet">🍽️ View Today's Diet</button>
+    <button class="ghost-btn" id="goCal">📅 Open Calendar</button>
     <div class="section-title">My Plans<button id="mgPlans">Manage →</button></div>
     ${plans.map(p=>{const pg=GOALS[p.goal];return `<div class="plan-card ${p.id===activePlanId?'active':''}" data-pid="${p.id}"><div class="pc-e">${p.emoji||pg.emoji}</div><div class="pc-t"><b>${p.name}</b><span>${pg.label} · ${EXP_LABEL[p.experience]} · ${p.days} day</span></div>${p.id===activePlanId?'<div class="pc-badge">Active</div>':''}</div>`;}).join('')}
     <button class="ghost-btn" id="addPlan">＋ Add a New Plan</button><div style="height:8px"></div>`;
-  document.getElementById('goWk').onclick=()=>setView('workout');
-  document.getElementById('todayWk').onclick=()=>setView('workout');
+  document.getElementById('goWk').onclick=()=>{currentDay=hd;setView('workout');};
+  document.getElementById('todayWk').onclick=()=>{currentDay=hd;setView('workout');};
   document.getElementById('seeAll').onclick=()=>setView('workout');
   document.getElementById('goDiet').onclick=()=>setView('diet');
+  document.getElementById('goCal').onclick=()=>{calRef=new Date();setView('calendar');};
   document.getElementById('mgPlans').onclick=()=>setView('plans');
   document.getElementById('addPlan').onclick=()=>setView('plans');
   document.getElementById('wPlus').onclick=()=>changeWater(1);
@@ -102,7 +106,7 @@ function renderDay(){
   app.querySelectorAll('.vid-btn[data-rm]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();removeCustomExercise(currentDay,day.baseLen,+btn.dataset.rm);}));
   document.getElementById('toolsBtn').onclick=openTools;
   document.getElementById('addExBtn').onclick=()=>openAddExercise(currentDay);
-  app.querySelectorAll('.set').forEach(el=>el.addEventListener('click',e=>{if(e.target.tagName==='INPUT')return;const exIdx=+el.dataset.ex,s=+el.dataset.set,rest=+el.dataset.rest;const prog=loadProgress(currentDay),exData=getEx(prog,exIdx),curr=exData.done;if(s+1===curr)exData.done=curr-1;else exData.done=s+1;prog[exIdx]=exData;saveProgress(currentDay,prog);if(navigator.vibrate)navigator.vibrate(15);if(exData.done===s+1){setTimerSeconds(rest);openTimer(true);}const nt=day.exercises.reduce((a,e)=>a+e.sets,0),nd=day.exercises.reduce((a,e,i)=>a+getEx(prog,i).done,0);if(nt>0&&nd===nt)markComplete(currentDay);renderTabs();renderDay();}));
+  app.querySelectorAll('.set').forEach(el=>el.addEventListener('click',e=>{if(e.target.tagName==='INPUT')return;const exIdx=+el.dataset.ex,s=+el.dataset.set,rest=+el.dataset.rest;const prog=loadProgress(currentDay),exData=getEx(prog,exIdx),curr=exData.done;if(s+1===curr)exData.done=curr-1;else exData.done=s+1;prog[exIdx]=exData;saveProgress(currentDay,prog);if(navigator.vibrate)navigator.vibrate(15);if(exData.done===s+1){const tr=LS.get(uk('trained'),{});tr[dateKey()]=(tr[dateKey()]||0)+1;LS.set(uk('trained'),tr);setTimerSeconds(rest);openTimer(true);}const nt=day.exercises.reduce((a,e)=>a+e.sets,0),nd=day.exercises.reduce((a,e,i)=>a+getEx(prog,i).done,0);if(nt>0&&nd===nt)markComplete(currentDay);renderTabs();renderDay();}));
   app.querySelectorAll('.s-w, .s-r').forEach(inp=>{inp.addEventListener('click',e=>e.stopPropagation());inp.addEventListener('change',()=>{const exIdx=+inp.dataset.ex,s=+inp.dataset.set,prog=loadProgress(currentDay),exData=getEx(prog,exIdx);exData.log[s]=exData.log[s]||{};if(inp.classList.contains('s-w')){exData.log[s].w=inp.value;updatePR(day.exercises[exIdx].name,+inp.value);}else exData.log[s].r=inp.value;prog[exIdx]=exData;saveProgress(currentDay,prog);});});
   const pct=total>0?Math.round(done/total*100):0;document.getElementById('progressFill').style.width=pct+'%';document.getElementById('progressText').textContent=`${done} / ${total} sets`;document.getElementById('progressPct').textContent=pct+'%';
   sessionTick();
@@ -226,3 +230,39 @@ function renderProfile(){
   document.getElementById('logoutBtn').onclick=()=>{if(confirm('Logout?'))logout();};
 }
 function editStats(){const apx=activePlan();wz={name:profile.name,gender:profile.gender,age:profile.age,height:profile.height,weight:profile.weight,goal:apx.goal,experience:apx.experience,days:apx.days,activity:profile.activity};wzStep=1;finishWizardOverride=true;document.getElementById('wizard').classList.add('show');renderWizard();}
+
+/* ---------- CALENDAR ---------- */
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function renderCalendar(){
+  setHeader('Calendar','Your training history');
+  if(!calRef)calRef=new Date();
+  const app=document.getElementById('app'),year=calRef.getFullYear(),month=calRef.getMonth();
+  const startDow=new Date(year,month,1).getDay(),daysInMonth=new Date(year,month+1,0).getDate();
+  const trained=LS.get(uk('trained'),{}),sched=LS.get(uk('schedule'),{});
+  let cells='',trainedCount=0;
+  for(let i=0;i<startDow;i++)cells+=`<div class="cal-cell empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){const dk=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,cnt=trained[dk]||0;if(cnt)trainedCount++;const lvl=cnt>=12?3:cnt>=6?2:cnt>=1?1:0,isToday=dk===dateKey();cells+=`<div class="cal-cell lvl${lvl} ${isToday?'today':''}" data-dk="${dk}">${d}</div>`;}
+  const consistency=Math.round(trainedCount/daysInMonth*100);
+  const dows=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  app.innerHTML=`
+    <div class="cal-head"><button id="calPrev">◀</button><b>${MONTHS[month]} ${year}</b><button id="calNext">▶</button></div>
+    <div class="cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+    <div class="cal-grid">${cells}</div>
+    <div id="calDay"></div>
+    <div class="grid3" style="margin-top:14px"><div class="stat-card"><div class="lbl">Trained</div><div class="val">${trainedCount}<small> d</small></div></div><div class="stat-card"><div class="lbl">Consistency</div><div class="val">${consistency}<small>%</small></div></div><div class="stat-card"><div class="lbl">Streak</div><div class="val">${streak()}</div></div></div>
+    <div class="section-title">🗓️ Weekly Schedule</div>
+    <div class="info-banner">Assign a workout to each weekday — Home will show what's planned for today.</div>
+    ${dows.map((dw,i)=>`<div class="sched-row"><span>${dw}</span><select class="sched-sel" data-dow="${i}"><option value="">Rest</option>${PLAN.map((p,j)=>`<option value="${j}" ${sched[i]==j?'selected':''}>${p.title}</option>`).join('')}</select></div>`).join('')}
+    <div style="height:8px"></div>`;
+  document.getElementById('calPrev').onclick=()=>{calRef=new Date(year,month-1,1);renderCalendar();};
+  document.getElementById('calNext').onclick=()=>{calRef=new Date(year,month+1,1);renderCalendar();};
+  document.querySelectorAll('.cal-cell[data-dk]').forEach(c=>c.onclick=()=>showCalDay(c.dataset.dk));
+  document.querySelectorAll('.sched-sel').forEach(s=>s.onchange=()=>{const sc=LS.get(uk('schedule'),{});if(s.value==='')delete sc[s.dataset.dow];else sc[s.dataset.dow]=+s.value;LS.set(uk('schedule'),sc);showToast('Schedule saved');});
+}
+function showCalDay(dk){
+  const trained=LS.get(uk('trained'),{}),hist=LS.get(uk('history'),[]),cnt=trained[dk]||0,h=hist.filter(x=>x.d===dk),el=document.getElementById('calDay');
+  if(!cnt){el.innerHTML=`<div class="info-banner" style="margin-top:14px"><b>${dk}</b> — Rest day 😴</div>`;return;}
+  let txt=`${cnt} set${cnt>1?'s':''} completed`;
+  if(h.length){const names=[...new Set(h.map(x=>(PLAN[x.day]&&PLAN[x.day].title)||'Workout'))];txt+=` · ${names.join(', ')} ✅`;}
+  el.innerHTML=`<div class="info-banner" style="margin-top:14px"><b>${dk}</b><br>💪 ${txt}</div>`;
+}

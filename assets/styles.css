@@ -242,6 +242,21 @@ main{padding:18px}
 .vid-footer{padding:10px 14px;background:#0f0f1a;display:flex;gap:8px;align-items:center;border-top:1px solid var(--border)}
 .vid-footer .hint{flex:1;font-size:11px;color:#999}
 .vid-footer a{background:rgba(255,0,0,.15);border:1px solid rgba(255,0,0,.3);color:#ff6b6b;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-head b{font-size:16px;font-weight:900}
+.cal-head button{background:var(--card);border:1px solid var(--border);color:var(--text);width:38px;height:38px;border-radius:10px;font-size:15px;cursor:pointer}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.cal-dow span{text-align:center;font-size:11px;color:var(--muted);font-weight:800}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:12px;font-weight:700;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer}
+.cal-cell.empty{background:transparent;border:none;cursor:default}
+.cal-cell.lvl1{background:rgba(47,209,120,.28);color:var(--text);border-color:transparent}
+.cal-cell.lvl2{background:rgba(47,209,120,.6);color:#fff;border-color:transparent}
+.cal-cell.lvl3{background:var(--ok);color:#04220f;border-color:transparent}
+.cal-cell.today{box-shadow:0 0 0 2px var(--accent)}
+.sched-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.sched-row span{font-weight:800;font-size:14px}
+.sched-row select{flex:1;max-width:62%;background:var(--bg-2);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:9px;font-weight:700;font-size:13px}
 .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:90;background:var(--bg-2);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);display:none;padding:9px 6px calc(9px + env(safe-area-inset-bottom))}
 .nav-item{flex:1;background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:700;cursor:pointer;padding:4px;transition:.15s}
 .nav-item svg{width:23px;height:23px;fill:currentColor}
