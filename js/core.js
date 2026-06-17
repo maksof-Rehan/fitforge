@@ -44,6 +44,7 @@ function buildPlan(plan){
     let list=[];
     Object.keys(d.groups).forEach(cat=>{let cnt=d.groups[cat];if(plan.experience==='beginner'&&cnt>1&&EX_POOL[cat][0].c===0)cnt=1;pickEx(cat,cnt,d.offset||0).forEach(ex=>list.push({ex,cat}));});
     list=list.slice(0,cap);
+    list.sort((a,b)=>(b.ex.c||0)-(a.ex.c||0)); // research: compounds first, isolation after
     const exercises=list.map((it,i)=>{const ex=it.ex,cat=it.cat,comp=ex.c===1;let sets=comp?4:3;if(plan.experience==='beginner')sets=3;const dropSet=(plan.experience==='advanced'&&!comp&&i>=list.length-2);return{name:ex.name,sets,reps:g.reps,rest:comp?g.restC:g.restI,dropSet,variants:ex.variants,cat,srcIdx:EX_POOL[cat].indexOf(ex)};});
     return{title:d.title,focus:d.focus,emoji:d.emoji,exercises};
   });
@@ -66,7 +67,8 @@ function getEffectiveDay(dayIdx){
   custom.forEach(c=>exercises.push({name:c.name,sets:c.sets||3,reps:c.reps||GOALS[activePlan().goal].reps,rest:c.rest||75,dropSet:false,variants:[{label:"Tutorial",q:c.name+" exercise form"}],cat:c.cat||'chest',srcIdx:-1,custom:true}));
   return{title:day.title,focus:day.focus,emoji:day.emoji,exercises,baseLen:day.exercises.length};
 }
-function swapExercise(dayIdx,exIdx){const day=getEffectiveDay(dayIdx),ex=day.exercises[exIdx];if(ex.custom)return;const pool=EX_POOL[ex.cat],used=day.exercises.filter(e=>!e.custom).map(e=>e.srcIdx);let idx=ex.srcIdx;for(let k=1;k<=pool.length;k++){const cand=(ex.srcIdx+k)%pool.length;if(used.indexOf(cand)===-1){idx=cand;break;}}const all=LS.get(uk('swap-'+activePlanId),{});all[dayIdx]=all[dayIdx]||{};all[dayIdx][exIdx]=idx;LS.set(uk('swap-'+activePlanId),all);renderDay();showToast('Exercise swapped');}
+/* Pick a specific alternative exercise for a slot (from the muscle's best-5 list) */
+function chooseExercise(dayIdx,exIdx,poolIdx){const all=LS.get(uk('swap-'+activePlanId),{});all[dayIdx]=all[dayIdx]||{};all[dayIdx][exIdx]=poolIdx;LS.set(uk('swap-'+activePlanId),all);renderDay();showToast('Exercise updated');}
 function addCustomExercise(dayIdx,name,cat){const all=LS.get(uk('customEx-'+activePlanId),{});all[dayIdx]=all[dayIdx]||[];all[dayIdx].push({name,cat});LS.set(uk('customEx-'+activePlanId),all);renderDay();showToast('Exercise added');}
 function removeCustomExercise(dayIdx,baseLen,exIdx){const all=LS.get(uk('customEx-'+activePlanId),{}),arr=all[dayIdx]||[];arr.splice(exIdx-baseLen,1);all[dayIdx]=arr;LS.set(uk('customEx-'+activePlanId),all);renderDay();showToast('Removed');}
 

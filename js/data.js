@@ -12,16 +12,71 @@ const GOALS={
 const ACTIVITY={sedentary:1.35,light:1.5,active:1.7};
 const EXP_LABEL={beginner:"Beginner",intermediate:"Intermediate",advanced:"Advanced"};
 function V(){return Array.prototype.slice.call(arguments).map(q=>({label:q[0],q:q[1]}));}
+/* Each muscle: best ~5 exercises, RANKED best-first (research/effectiveness).
+   c:1 = compound (most bang for buck), c:0 = isolation. variants = equipment options. */
 const EX_POOL={
-  chest:[{name:"Bench Press",c:1,variants:V(["Barbell","barbell bench press form"],["Dumbbell","dumbbell bench press form"])},{name:"Incline Press",c:1,variants:V(["Dumbbell","incline dumbbell press form"],["Barbell","incline barbell bench press form"])},{name:"Chest Fly",c:0,variants:V(["Dumbbell","dumbbell chest fly form"],["Pec Deck","pec deck fly form"])},{name:"Cable Crossover",c:0,variants:V(["High-Low","high to low cable crossover form"])},{name:"Chest Dips",c:1,variants:V(["Bodyweight","chest dips form"])}],
-  back:[{name:"Lat Pulldown",c:1,variants:V(["Wide","wide grip lat pulldown form"],["Neutral","neutral grip lat pulldown form"])},{name:"Seated Cable Row",c:1,variants:V(["Cable","seated cable row form"])},{name:"Barbell Row",c:1,variants:V(["Barbell","barbell bent over row form"],["T-Bar","t-bar row form"])},{name:"Pull-ups",c:1,variants:V(["Bodyweight","pull ups form"])},{name:"Lat Pullover",c:0,variants:V(["Cable","cable pullover form"])}],
-  shoulders:[{name:"Overhead Press",c:1,variants:V(["Dumbbell","overhead dumbbell press form"],["Barbell","overhead barbell press form"])},{name:"Lateral Raise",c:0,variants:V(["Dumbbell","dumbbell lateral raise form"],["Cable","cable lateral raise form"])},{name:"Rear Delt Fly",c:0,variants:V(["Pec Deck","reverse pec deck fly form"],["Face Pull","face pulls form"])},{name:"Front Raise",c:0,variants:V(["Dumbbell","front dumbbell raise form"])},{name:"Arnold Press",c:1,variants:V(["Dumbbell","arnold press form"])}],
-  biceps:[{name:"Barbell Curl",c:0,variants:V(["EZ Bar","ez bar curl form"])},{name:"Dumbbell Curl",c:0,variants:V(["Incline","incline dumbbell curl form"])},{name:"Hammer Curl",c:0,variants:V(["Dumbbell","hammer curl form"])},{name:"Preacher Curl",c:0,variants:V(["Machine","preacher curl form"])}],
-  triceps:[{name:"Tricep Pushdown",c:0,variants:V(["Rope","rope tricep pushdown form"])},{name:"Skullcrusher",c:0,variants:V(["EZ Bar","ez bar skullcrusher form"])},{name:"Overhead Extension",c:0,variants:V(["Cable","overhead cable tricep extension form"])},{name:"Close-Grip Bench",c:1,variants:V(["Barbell","close grip bench press form"])}],
-  quads:[{name:"Squat",c:1,variants:V(["Barbell","barbell squat form"],["Smith","smith machine squat form"])},{name:"Leg Press",c:1,variants:V(["Machine","leg press form"])},{name:"Hack Squat",c:1,variants:V(["Machine","hack squat form"])},{name:"Lunges",c:1,variants:V(["Walking","walking lunges form"],["Bulgarian","bulgarian split squat form"])},{name:"Leg Extension",c:0,variants:V(["Machine","leg extension form"])}],
-  hamstrings:[{name:"Romanian Deadlift",c:1,variants:V(["Barbell","romanian deadlift form"],["Dumbbell","dumbbell rdl form"])},{name:"Leg Curl",c:0,variants:V(["Lying","lying leg curl form"],["Seated","seated leg curl form"])},{name:"Hip Thrust",c:1,variants:V(["Barbell","barbell hip thrust form"])}],
-  calves:[{name:"Standing Calf Raise",c:0,variants:V(["Machine","standing calf raise form"])},{name:"Seated Calf Raise",c:0,variants:V(["Machine","seated calf raise form"])}],
-  abs:[{name:"Hanging Leg Raise",c:0,variants:V(["Bodyweight","hanging leg raise form"])},{name:"Cable Crunch",c:0,variants:V(["Cable","cable crunch form"])},{name:"Plank",c:0,variants:V(["Hold","plank hold form"])},{name:"Russian Twist",c:0,variants:V(["Weighted","weighted russian twist form"])}]
+  chest:[
+    {name:"Bench Press",c:1,variants:V(["Barbell","barbell bench press form"],["Dumbbell","dumbbell bench press form"])},
+    {name:"Incline Press",c:1,variants:V(["Dumbbell","incline dumbbell press form"],["Barbell","incline barbell bench press form"])},
+    {name:"Chest Dips",c:1,variants:V(["Bodyweight","chest dips form"],["Weighted","weighted chest dips form"])},
+    {name:"Cable Fly",c:0,variants:V(["High-Low","high to low cable crossover form"],["Mid","cable chest fly form"])},
+    {name:"Machine Chest Fly",c:0,variants:V(["Pec Deck","pec deck fly form"],["Dumbbell","dumbbell chest fly form"])}
+  ],
+  back:[
+    {name:"Pull-ups",c:1,variants:V(["Bodyweight","pull ups form"],["Assisted","assisted pull up machine form"])},
+    {name:"Barbell Row",c:1,variants:V(["Barbell","barbell bent over row form"],["T-Bar","t-bar row form"])},
+    {name:"Lat Pulldown",c:1,variants:V(["Wide","wide grip lat pulldown form"],["Neutral","neutral grip lat pulldown form"])},
+    {name:"Seated Cable Row",c:1,variants:V(["Cable","seated cable row form"],["Chest-Supported","chest supported row form"])},
+    {name:"Lat Pullover",c:0,variants:V(["Cable","cable pullover form"],["Dumbbell","dumbbell pullover form"])}
+  ],
+  shoulders:[
+    {name:"Overhead Press",c:1,variants:V(["Dumbbell","overhead dumbbell press form"],["Barbell","overhead barbell press form"])},
+    {name:"Lateral Raise",c:0,variants:V(["Dumbbell","dumbbell lateral raise form"],["Cable","cable lateral raise form"])},
+    {name:"Rear Delt Fly",c:0,variants:V(["Pec Deck","reverse pec deck fly form"],["Face Pull","face pulls form"])},
+    {name:"Arnold Press",c:1,variants:V(["Dumbbell","arnold press form"])},
+    {name:"Front Raise",c:0,variants:V(["Dumbbell","front dumbbell raise form"],["Cable","cable front raise form"])}
+  ],
+  biceps:[
+    {name:"Barbell Curl",c:0,variants:V(["EZ Bar","ez bar curl form"],["Straight","barbell curl form"])},
+    {name:"Incline Dumbbell Curl",c:0,variants:V(["Dumbbell","incline dumbbell curl form"])},
+    {name:"Hammer Curl",c:0,variants:V(["Dumbbell","hammer curl form"],["Rope","rope hammer curl form"])},
+    {name:"Preacher Curl",c:0,variants:V(["Machine","preacher curl machine form"],["EZ Bar","ez bar preacher curl form"])},
+    {name:"Cable Curl",c:0,variants:V(["Bayesian","bayesian cable curl form"],["Standing","standing cable curl form"])}
+  ],
+  triceps:[
+    {name:"Close-Grip Bench",c:1,variants:V(["Barbell","close grip bench press form"])},
+    {name:"Tricep Pushdown",c:0,variants:V(["Rope","rope tricep pushdown form"],["Bar","bar tricep pushdown form"])},
+    {name:"Overhead Extension",c:0,variants:V(["Cable","overhead cable tricep extension form"],["Dumbbell","overhead dumbbell tricep extension form"])},
+    {name:"Skullcrusher",c:0,variants:V(["EZ Bar","ez bar skullcrusher form"])},
+    {name:"Tricep Dips",c:1,variants:V(["Bodyweight","tricep dips form"],["Bench","bench dips form"])}
+  ],
+  quads:[
+    {name:"Squat",c:1,variants:V(["Barbell","barbell squat form"],["Smith","smith machine squat form"])},
+    {name:"Leg Press",c:1,variants:V(["Machine","leg press form"])},
+    {name:"Hack Squat",c:1,variants:V(["Machine","hack squat form"])},
+    {name:"Bulgarian Split Squat",c:1,variants:V(["Dumbbell","bulgarian split squat form"],["Barbell","barbell bulgarian split squat"])},
+    {name:"Leg Extension",c:0,variants:V(["Machine","leg extension form"])}
+  ],
+  hamstrings:[
+    {name:"Romanian Deadlift",c:1,variants:V(["Barbell","romanian deadlift form"],["Dumbbell","dumbbell rdl form"])},
+    {name:"Lying Leg Curl",c:0,variants:V(["Machine","lying leg curl form"])},
+    {name:"Seated Leg Curl",c:0,variants:V(["Machine","seated leg curl form"])},
+    {name:"Hip Thrust",c:1,variants:V(["Barbell","barbell hip thrust form"])},
+    {name:"Good Morning",c:1,variants:V(["Barbell","barbell good morning form"])}
+  ],
+  calves:[
+    {name:"Standing Calf Raise",c:0,variants:V(["Machine","standing calf raise form"],["Smith","smith machine calf raise form"])},
+    {name:"Seated Calf Raise",c:0,variants:V(["Machine","seated calf raise form"])},
+    {name:"Leg Press Calf Raise",c:0,variants:V(["Machine","leg press calf raise form"])},
+    {name:"Single-Leg Calf Raise",c:0,variants:V(["Dumbbell","single leg calf raise form"])}
+  ],
+  abs:[
+    {name:"Hanging Leg Raise",c:0,variants:V(["Bodyweight","hanging leg raise form"])},
+    {name:"Cable Crunch",c:0,variants:V(["Cable","cable crunch form"])},
+    {name:"Ab Wheel Rollout",c:0,variants:V(["Wheel","ab wheel rollout form"])},
+    {name:"Plank",c:0,variants:V(["Hold","plank hold form"])},
+    {name:"Russian Twist",c:0,variants:V(["Weighted","weighted russian twist form"])}
+  ]
 };
 const MUSCLE_LABELS={chest:"Chest",back:"Back",shoulders:"Shoulders",biceps:"Biceps",triceps:"Triceps",quads:"Quads",hamstrings:"Hamstrings",calves:"Calves",abs:"Abs"};
 const SPLITS={

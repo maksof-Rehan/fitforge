@@ -91,14 +91,14 @@ function renderDay(){
     const lastArr=eh[ex.name];if(lastArr&&lastArr.length)badges.push(`<span class="badge last">Last ${lastArr[lastArr.length-1].w}kg</span>`);
     const note=ex.variants.length>1?`<div class="sub">Pick one · ${ex.rest}s rest · beat your last set ↑</div>`:`<div class="sub">${ex.rest}s rest · beat your last set ↑</div>`;
     let vids=ex.variants.map((v,vi)=>`<button class="vid-btn" data-ex="${idx}" data-v="${vi}"><svg viewBox="0 0 24 24"><path d="M21.58 7.19c-.23-.86-.91-1.54-1.77-1.77C18.25 5 12 5 12 5s-6.25 0-7.81.42c-.86.23-1.54.91-1.77 1.77C2 8.75 2 12 2 12s0 3.25.42 4.81c.23.86.91 1.54 1.77 1.77C5.75 19 12 19 12 19s6.25 0 7.81-.42c.86-.23 1.54-.91 1.77-1.77C22 15.25 22 12 22 12s0-3.25-.42-4.81zM10 15V9l5.2 3L10 15z"/></svg>${v.label}</button>`).join('');
-    if(ex.custom)vids+=`<button class="vid-btn rm" data-rm="${idx}">🗑 Remove</button>`;else vids+=`<button class="vid-btn swap" data-swap="${idx}">🔁 Swap</button>`;
+    if(ex.custom)vids+=`<button class="vid-btn rm" data-rm="${idx}">🗑 Remove</button>`;else vids+=`<button class="vid-btn swap" data-alt="${idx}">🔀 Alternatives (${EX_POOL[ex.cat].length})</button>`;
     const setHtml=Array.from({length:ex.sets}).map((_,s)=>{const isDone=s<exData.done,isDrop=ex.dropSet&&s===ex.sets-1,lg=exData.log[s]||{};return `<div class="set ${isDone?'done':''} ${isDrop?'drop-set':''}" data-ex="${idx}" data-set="${s}" data-rest="${ex.rest}"><div class="set-num">${isDrop?'Drop':'Set '+(s+1)}</div><div class="set-inputs"><input class="s-w" type="number" inputmode="decimal" data-ex="${idx}" data-set="${s}" value="${lg.w??''}" placeholder="kg" /><span class="x">×</span><input class="s-r" type="number" inputmode="numeric" data-ex="${idx}" data-set="${s}" value="${lg.r??''}" placeholder="reps" /></div><div class="set-check"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div></div>`;}).join('');
     card.innerHTML=`<div class="ex-head"><div class="ex-num">${idx+1}</div><div class="ex-name"><h3>${ex.name}</h3>${note}<div class="badges">${badges.join('')}</div></div></div><div class="videos">${vids}</div><div class="sets">${setHtml}</div>`;
     app.appendChild(card);
   });
   const addBtn=document.createElement('button');addBtn.className='ghost-btn';addBtn.id='addExBtn';addBtn.textContent='＋ Add Exercise';app.appendChild(addBtn);
   app.querySelectorAll('.vid-btn[data-v]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const ex=day.exercises[+btn.dataset.ex];openVideo(ex,ex.variants[+btn.dataset.v]);}));
-  app.querySelectorAll('.vid-btn[data-swap]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();swapExercise(currentDay,+btn.dataset.swap);}));
+  app.querySelectorAll('.vid-btn[data-alt]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();openAltPicker(currentDay,+btn.dataset.alt);}));
   app.querySelectorAll('.vid-btn[data-rm]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();removeCustomExercise(currentDay,day.baseLen,+btn.dataset.rm);}));
   document.getElementById('toolsBtn').onclick=openTools;
   document.getElementById('addExBtn').onclick=()=>openAddExercise(currentDay);

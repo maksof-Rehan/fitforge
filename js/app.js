@@ -99,6 +99,16 @@ function openAddFood(){
   document.getElementById('nfSave').onclick=()=>{const n=(document.getElementById('nf-n').value||'').trim();if(!n){showToast('Enter name');return;}const food={n,u:(document.getElementById('nf-u').value||'1 serving').trim(),cal:+document.getElementById('nf-cal').value||0,p:+document.getElementById('nf-p').value||0,c:+document.getElementById('nf-c').value||0,f:+document.getElementById('nf-f').value||0};const arr=LS.get(uk('foods'),[]);arr.push(food);LS.set(uk('foods'),arr);closeModal();renderDiet();showToast('Food added');};
 }
 
+/* ===== ALTERNATIVES PICKER (pick any exercise for a muscle slot) ===== */
+function openAltPicker(dayIdx,exIdx){
+  const day=getEffectiveDay(dayIdx),ex=day.exercises[exIdx];if(ex.custom)return;
+  const cat=ex.cat,pool=EX_POOL[cat];
+  openModal(`${modalHead(MUSCLE_LABELS[cat]+' Exercises')}
+    <p style="color:var(--muted);font-size:12.5px;margin:-6px 0 14px;line-height:1.5">Best ${pool.length} ${MUSCLE_LABELS[cat]} moves — pick <b style="color:var(--text)">any one</b> and it counts for this slot.</p>
+    ${pool.map((p,i)=>`<div class="goal-card ${i===ex.srcIdx?'sel':''}" data-alt="${i}"><div class="gc-emoji">${p.c?'🏋️':'🎯'}</div><div class="gc-t"><b>${p.name}</b><span>${p.c?'Compound':'Isolation'} · ${p.variants.map(v=>v.label).join(' / ')}</span></div><div class="gc-tick"></div></div>`).join('')}`);
+  document.querySelectorAll('#modalBox .goal-card[data-alt]').forEach(el=>el.onclick=()=>{chooseExercise(dayIdx,exIdx,+el.dataset.alt);closeModal();});
+}
+
 /* ===== ADD CUSTOM EXERCISE ===== */
 function openAddExercise(dayIdx){
   openModal(`${modalHead('＋ Add Exercise')}
