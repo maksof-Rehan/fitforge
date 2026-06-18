@@ -208,6 +208,7 @@ function renderProfile(){
     <div class="form-card">
       <div class="pf-row"><span>Account</span><b>${profile.name||'—'}</b></div>
       <div class="pf-row"><span>Email</span><b style="font-size:12px">${fbEmail||'—'}</b></div>
+      <div class="pf-row"><span>Phone</span><b>${profile.phone||'—'}</b></div>
       <div class="pf-row"><span>Gender / Age</span><b>${profile.gender==='female'?'Female':'Male'} · ${profile.age} yrs</b></div>
       <div class="pf-row"><span>Height / Weight</span><b>${profile.height} cm · ${profile.weight} kg</b></div>
       <div class="pf-row"><span>BMI</span><b>${c.bmi} (${c.bmiCat})</b></div>
@@ -229,7 +230,7 @@ function renderProfile(){
   document.getElementById('resetDay').onclick=()=>{if(confirm("Reset today's workout?")){LS.del(progressKey(currentDay));showToast('Reset');}};
   document.getElementById('logoutBtn').onclick=()=>{if(confirm('Logout?'))logout();};
 }
-function editStats(){const apx=activePlan();wz={name:profile.name,gender:profile.gender,age:profile.age,height:profile.height,weight:profile.weight,goal:apx.goal,experience:apx.experience,days:apx.days,activity:profile.activity};wzStep=1;finishWizardOverride=true;document.getElementById('wizard').classList.add('show');renderWizard();}
+function editStats(){const apx=activePlan();wz={name:profile.name,phone:profile.phone,gender:profile.gender,age:profile.age,height:profile.height,weight:profile.weight,goal:apx.goal,experience:apx.experience,days:apx.days,activity:profile.activity};wzStep=1;finishWizardOverride=true;document.getElementById('wizard').classList.add('show');renderWizard();}
 
 /* ---------- CALENDAR ---------- */
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];

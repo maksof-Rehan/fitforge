@@ -4,7 +4,7 @@
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}},set(k,v){localStorage.setItem(k,JSON.stringify(v));},del(k){localStorage.removeItem(k);}};
 
 /* ----- STATE ----- */
-let currentUser=null,fbEmail=null,pendingName='',db=null,auth=null;
+let currentUser=null,fbEmail=null,pendingName='',pendingPhone='',db=null,auth=null;
 let profile=null,plans=[],activePlanId=null,PLAN=[];
 let currentView='home',currentDay=0,dietTab='suggested',authMode='login';
 const uk=k=>`ff:${currentUser}:${k}`;

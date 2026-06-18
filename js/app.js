@@ -10,7 +10,7 @@ function renderAuth(){
   document.getElementById('segLogin').classList.toggle('active',authMode==='login');
   document.getElementById('segSignup').classList.toggle('active',authMode==='signup');
   document.getElementById('authForm').innerHTML=`
-    ${authMode==='signup'?`<div class="field"><label>Name</label><input id="a-name" type="text" placeholder="Your name" /></div>`:''}
+    ${authMode==='signup'?`<div class="field"><label>Name</label><input id="a-name" type="text" placeholder="Your name" /></div><div class="field"><label>Phone Number</label><input id="a-phone" type="tel" inputmode="tel" placeholder="03xx-xxxxxxx" /></div>`:''}
     <div class="field"><label>Email</label><input id="a-email" type="email" placeholder="you@email.com" autocomplete="username" /></div>
     <div class="field"><label>Password</label><input id="a-pass" type="password" placeholder="At least 6 characters" autocomplete="current-password" /></div>
     <button class="big-btn" id="authGo">${authMode==='login'?'🔓 Login':'🚀 Create Account'}</button>
@@ -25,12 +25,18 @@ function doAuth(){
   clearErr();
   const email=(document.getElementById('a-email').value||'').trim().toLowerCase();
   const pass=document.getElementById('a-pass').value||'';
+  if(authMode==='signup'){
+    pendingName=(document.getElementById('a-name').value||'').trim();
+    pendingPhone=(document.getElementById('a-phone').value||'').trim();
+    if(!pendingName)return authError('Enter your name');
+    if(pendingPhone.replace(/\D/g,'').length<7)return authError('Enter a valid phone number');
+  }
   if(!email||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return authError('Enter a valid email');
   if(pass.length<6)return authError('Password must be at least 6 characters');
   if(!auth)return authError('No internet (Firebase not loaded)');
   const btn=document.getElementById('authGo');btn.disabled=true;const oldT=btn.textContent;btn.textContent='⏳ ...';
   const fail=e=>{btn.disabled=false;btn.textContent=oldT;authError(fbErr(e));};
-  if(authMode==='signup'){pendingName=(document.getElementById('a-name').value||'').trim();if(!pendingName){fail({code:'noname'});return authError('Enter your name');}auth.createUserWithEmailAndPassword(email,pass).catch(fail);}
+  if(authMode==='signup'){auth.createUserWithEmailAndPassword(email,pass).then(cred=>{try{cred.user.sendEmailVerification();}catch(_){}}).catch(fail);}
   else{auth.signInWithEmailAndPassword(email,pass).catch(fail);}
 }
 function fbErr(e){const c=(e&&e.code)||'';if(c.includes('email-already-in-use'))return 'Email already registered — please Login';if(c.includes('invalid-email'))return 'Invalid email';if(c.includes('weak-password'))return 'Weak password (6+ chars)';if(c.includes('user-not-found'))return 'No account found — Sign Up';if(c.includes('wrong-password')||c.includes('invalid-credential'))return 'Wrong email or password';if(c.includes('network'))return 'Check your internet';if(c.includes('too-many'))return 'Too many tries — wait a bit';if(c.includes('operation-not-allowed')||c.includes('configuration-not-found'))return 'Enable Email/Password auth in Firebase';return (e&&e.message)||'Something went wrong';}
@@ -38,13 +44,13 @@ function logout(){if(auth)auth.signOut();}
 
 /* ===== WIZARD ===== */
 let wz={},wzStep=1,finishWizardOverride=false;
-function startWizard(){wz={name:pendingName||(profile&&profile.name)||'',gender:'male',goal:'recomp',experience:'intermediate',days:6,activity:'light'};wzStep=1;document.getElementById('wizard').classList.add('show');renderWizard();}
+function startWizard(){wz={name:pendingName||(profile&&profile.name)||'',phone:pendingPhone||(profile&&profile.phone)||'',gender:'male',goal:'recomp',experience:'intermediate',days:6,activity:'light'};wzStep=1;document.getElementById('wizard').classList.add('show');renderWizard();}
 function renderWizard(){
   ['d1','d2','d3'].forEach((d,i)=>document.getElementById(d).classList.toggle('on',i<wzStep));
   const t=document.getElementById('wzTitle'),s=document.getElementById('wzSub'),b=document.getElementById('wzBody'),nav=document.getElementById('wzNav');
   const opt=(key,arr)=>arr.map(o=>`<button class="opt ${wz[key]==o.v?'sel':''}" data-k="${key}" data-v="${o.v}">${o.t}</button>`).join('');
   if(wzStep===1){t.textContent="About You";s.textContent="Your body details — used to calculate your targets";
-    b.innerHTML=`<div class="form-card"><div class="field"><label>Name</label><input id="w-name" type="text" value="${wz.name||''}" placeholder="Your name" /></div><div class="field"><label>Gender</label><div class="opt-row">${opt('gender',[{v:'male',t:'Male'},{v:'female',t:'Female'}])}</div></div><div class="field"><label>Age (years)</label><input id="w-age" type="number" inputmode="numeric" value="${wz.age||''}" placeholder="25" /></div><div class="grid2"><div class="field"><label>Height (cm)</label><input id="w-height" type="number" inputmode="decimal" value="${wz.height||''}" placeholder="178" /></div><div class="field"><label>Weight (kg)</label><input id="w-weight" type="number" inputmode="decimal" value="${wz.weight||''}" placeholder="88" /></div></div></div>`;
+    b.innerHTML=`<div class="form-card"><div class="field"><label>Name</label><input id="w-name" type="text" value="${wz.name||''}" placeholder="Your name" /></div><div class="field"><label>Phone Number</label><input id="w-phone" type="tel" inputmode="tel" value="${wz.phone||''}" placeholder="03xx-xxxxxxx" /></div><div class="field"><label>Gender</label><div class="opt-row">${opt('gender',[{v:'male',t:'Male'},{v:'female',t:'Female'}])}</div></div><div class="field"><label>Age (years)</label><input id="w-age" type="number" inputmode="numeric" value="${wz.age||''}" placeholder="25" /></div><div class="grid2"><div class="field"><label>Height (cm)</label><input id="w-height" type="number" inputmode="decimal" value="${wz.height||''}" placeholder="178" /></div><div class="field"><label>Weight (kg)</label><input id="w-weight" type="number" inputmode="decimal" value="${wz.weight||''}" placeholder="88" /></div></div></div>`;
   }else if(wzStep===2){t.textContent="Your Goal";s.textContent="What do you want? (diet + workout adapt to this)";
     b.innerHTML=Object.keys(GOALS).map(k=>{const g=GOALS[k];return `<div class="goal-card ${wz.goal===k?'sel':''}" data-goal="${k}"><div class="gc-emoji">${g.emoji}</div><div class="gc-t"><b>${g.label}</b><span>${g.desc}</span></div><div class="gc-tick"></div></div>`;}).join('');
   }else{t.textContent="Training Setup";s.textContent="Pick your experience and days per week";
@@ -56,10 +62,10 @@ function renderWizard(){
   const bk=document.getElementById('wzBack');if(bk)bk.onclick=()=>{saveWzStep();wzStep--;renderWizard();};
   document.getElementById('wzNext').onclick=()=>{if(!saveWzStep())return;if(wzStep<3){wzStep++;renderWizard();}else finishWizard();};
 }
-function saveWzStep(){if(wzStep===1){wz.name=(document.getElementById('w-name').value||'').trim();wz.age=document.getElementById('w-age').value;wz.height=document.getElementById('w-height').value;wz.weight=document.getElementById('w-weight').value;if(!wz.age||!wz.height||!wz.weight){showToast('Fill age, height, weight');return false;}if(+wz.height<100||+wz.height>250){showToast('Enter height in cm (e.g. 178)');return false;}}return true;}
+function saveWzStep(){if(wzStep===1){wz.name=(document.getElementById('w-name').value||'').trim();wz.phone=(document.getElementById('w-phone').value||'').trim();wz.age=document.getElementById('w-age').value;wz.height=document.getElementById('w-height').value;wz.weight=document.getElementById('w-weight').value;if(!wz.phone||wz.phone.replace(/\D/g,'').length<7){showToast('Enter a valid phone number');return false;}if(!wz.age||!wz.height||!wz.weight){showToast('Fill age, height, weight');return false;}if(+wz.height<100||+wz.height>250){showToast('Enter height in cm (e.g. 178)');return false;}}return true;}
 function finishWizard(){
-  if(finishWizardOverride){profile={name:wz.name,gender:wz.gender,age:wz.age,height:wz.height,weight:wz.weight,activity:wz.activity};LS.set(uk('profile'),profile);finishWizardOverride=false;document.getElementById('wizard').classList.remove('show');rebuildPLAN();setView('profile');showToast('Updated');return;}
-  profile={name:wz.name,gender:wz.gender,age:wz.age,height:wz.height,weight:wz.weight,activity:wz.activity};
+  if(finishWizardOverride){profile={name:wz.name,phone:wz.phone,gender:wz.gender,age:wz.age,height:wz.height,weight:wz.weight,activity:wz.activity};LS.set(uk('profile'),profile);finishWizardOverride=false;document.getElementById('wizard').classList.remove('show');rebuildPLAN();setView('profile');showToast('Updated');return;}
+  profile={name:wz.name,phone:wz.phone,gender:wz.gender,age:wz.age,height:wz.height,weight:wz.weight,activity:wz.activity};
   LS.set(uk('profile'),profile);
   const plan={id:newId(),name:GOALS[wz.goal].label+" Plan",goal:wz.goal,experience:wz.experience,days:wz.days};
   plans=[plan];activePlanId=plan.id;LS.set(uk('plans'),plans);LS.set(uk('active'),activePlanId);
@@ -216,9 +222,24 @@ function boot(){
   auth=firebase.auth();db=firebase.firestore();
   try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{});}catch(e){}
   auth.onAuthStateChanged(async user=>{
-    if(user){currentUser=user.uid;fbEmail=user.email;currentView='home';currentDay=0;document.getElementById('auth').classList.remove('show');await pullCloud(user.uid);loadUser();loadVideoMap();if(profile&&plans.length){bootUI();}else{startWizard();}}
-    else{currentUser=null;profile=null;plans=[];pendingName='';document.getElementById('bottomNav').style.display='none';document.getElementById('wizard').classList.remove('show');showAuth();}
+    if(user){currentUser=user.uid;fbEmail=user.email;if(!user.emailVerified){showVerify();return;}await proceedAfterAuth(user);}
+    else{currentUser=null;profile=null;plans=[];pendingName='';pendingPhone='';document.getElementById('bottomNav').style.display='none';document.getElementById('wizard').classList.remove('show');document.getElementById('verify').classList.remove('show');showAuth();}
   });
+}
+async function proceedAfterAuth(user){
+  currentView='home';currentDay=0;
+  document.getElementById('auth').classList.remove('show');
+  document.getElementById('verify').classList.remove('show');
+  await pullCloud(user.uid);loadUser();loadVideoMap();
+  if(profile&&plans.length){bootUI();}else{startWizard();}
+}
+function showVerify(){
+  document.getElementById('auth').classList.remove('show');
+  const v=document.getElementById('verify');v.classList.add('show');
+  document.getElementById('verifyMsg').textContent='We sent a verification link to '+(fbEmail||'your email')+'. Open it, tap the link, then press Continue.';
+  document.getElementById('vrfContinue').onclick=()=>{const u=auth.currentUser;if(!u)return;u.reload().then(()=>{if(auth.currentUser.emailVerified){v.classList.remove('show');proceedAfterAuth(auth.currentUser);}else showToast('Not verified yet — check your email');}).catch(()=>showToast('Try again'));};
+  document.getElementById('vrfResend').onclick=()=>{const u=auth.currentUser;if(!u)return;u.sendEmailVerification().then(()=>showToast('Verification email sent')).catch(e=>showToast(fbErr(e)));};
+  document.getElementById('vrfLogout').onclick=()=>{v.classList.remove('show');logout();};
 }
 let lastTap=0;document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTap<300)e.preventDefault();lastTap=now;},{passive:false});
 boot();
