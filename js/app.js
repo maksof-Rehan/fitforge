@@ -160,10 +160,13 @@ function openVideo(ex,variant){
   document.getElementById('vidTitle').childNodes[0].nodeValue=ex.name+' ';
   document.getElementById('vidSub').textContent=variant.label;
   document.getElementById('vidOpenYT').href='https://www.youtube.com/results?search_query='+encodeURIComponent('deltabolic '+variant.q);
-  const saved=getVideo(ex.name,variant.label);
-  document.getElementById('vidHint').textContent=saved?'Saved demo · playing in-app':'Find this variation & play it — saves for everyone';
+  const saved=getVideo(ex.name,variant.label),searchUrl='https://www.youtube.com/results?search_query='+encodeURIComponent('deltabolic '+variant.q);
+  document.getElementById('vidNAyt').href=searchUrl;
+  const na=document.getElementById('vidNA'),pl=document.getElementById('ytplayer');
   vidModal.classList.add('open');document.body.style.overflow='hidden';
-  ensurePlayer(()=>{try{if(saved)ytPlayer.loadVideoById(saved);else ytPlayer.loadPlaylist({list:YT_UPLOADS,listType:'playlist',index:0});}catch(_){}});
+  document.getElementById('vidHint').textContent=saved?'Demo playing':'Demo not added yet';
+  if(saved){na.style.display='none';pl.style.display='block';ensurePlayer(()=>{try{ytPlayer.loadVideoById(saved);}catch(_){}});}
+  else{na.style.display='flex';pl.style.display='none';try{if(ytPlayer)ytPlayer.stopVideo();}catch(_){}}
 }
 function closeVideo(){vidModal.classList.remove('open');document.body.style.overflow='';try{if(ytPlayer)ytPlayer.pauseVideo();}catch(_){}}
 document.getElementById('vidClose').onclick=closeVideo;
