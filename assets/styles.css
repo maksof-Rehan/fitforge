@@ -264,3 +264,41 @@ main{padding:18px}
 .nav-item svg{width:23px;height:23px;fill:currentColor}
 .nav-item.active{color:var(--accent)}
 @media (min-width:640px){body,.bottom-nav{max-width:560px;margin:0 auto;left:0;right:0}body{border-left:1px solid var(--border);border-right:1px solid var(--border)}.bottom-nav{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
+
+/* ===================== 🌪️ TOOFANI ANIMATIONS ===================== */
+body::before{content:'';position:fixed;inset:-25%;z-index:-1;background:radial-gradient(34% 34% at 26% 26%,rgba(255,90,60,.22),transparent 60%),radial-gradient(34% 34% at 74% 72%,rgba(168,85,247,.20),transparent 60%),radial-gradient(30% 30% at 82% 14%,rgba(59,157,255,.14),transparent 60%);filter:blur(38px);animation:aurora 16s ease-in-out infinite alternate;pointer-events:none}
+@keyframes aurora{0%{transform:translate(-3%,-2%) scale(1)}50%{transform:translate(3%,1%) scale(1.1)}100%{transform:translate(2%,4%) scale(1.18)}}
+#app.view-in{animation:viewIn .4s cubic-bezier(.2,.75,.3,1)}
+@keyframes viewIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.hero{animation:heroIn .55s cubic-bezier(.2,.8,.25,1)}
+@keyframes heroIn{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:none}}
+.hero::after{content:'';position:absolute;top:-50%;right:-30%;width:60%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 60%);animation:heroGlow 6s ease-in-out infinite}
+@keyframes heroGlow{0%,100%{opacity:.4;transform:translateX(0)}50%{opacity:.9;transform:translateX(-12%)}}
+.big-btn{position:relative;overflow:hidden}
+.big-btn::after{content:'';position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.4),transparent);transform:skewX(-20deg);animation:shine 3.6s ease-in-out infinite}
+@keyframes shine{0%,55%{left:-70%}100%{left:150%}}
+.timer-fab{animation:fabPulse 2.4s ease-in-out infinite}
+@keyframes fabPulse{0%,100%{box-shadow:0 10px 30px rgba(255,90,60,.45)}50%{box-shadow:0 12px 46px rgba(255,90,60,.8)}}
+.exercise,.plan-card,.stat-card,.goal-card,.food-row,.wlog,.pr-row,.water-card,.target-card,.chart{transition:transform .16s ease,box-shadow .25s ease,border-color .25s ease}
+.exercise:active,.plan-card:active,.stat-card:active,.goal-card:active{transform:scale(.985)}
+.stat-card.accent{position:relative;overflow:hidden}
+.stat-card.accent::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(255,255,255,.1),transparent);transform:translateX(-100%);animation:sheen 4.5s ease-in-out infinite}
+@keyframes sheen{0%,72%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.progress-fill{background-size:200% 100%;animation:flow 3s linear infinite}
+@keyframes flow{to{background-position:200% 0}}
+.water-bar i{background-size:200% 100%;animation:flow 2.5s linear infinite}
+.tab.active{animation:tabPop .3s cubic-bezier(.2,1.5,.4,1)}
+@keyframes tabPop{from{transform:scale(.88)}to{transform:scale(1)}}
+.toast.show{animation:toastIn .4s cubic-bezier(.2,1.5,.4,1)}
+@keyframes toastIn{from{transform:translateX(-50%) translateY(-12px) scale(.9);opacity:0}to{transform:translateX(-50%) translateY(0) scale(1);opacity:1}}
+.nav-item.active svg{animation:navPop .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes navPop{from{transform:scale(.75)}to{transform:scale(1)}}
+.set.done{animation:setDone .35s ease}
+@keyframes setDone{0%{transform:scale(1)}40%{transform:scale(1.03)}100%{transform:scale(1)}}
+.badge.pr{animation:prGlow 2s ease-in-out infinite}
+@keyframes prGlow{0%,100%{box-shadow:0 0 0 rgba(255,176,32,0)}50%{box-shadow:0 0 10px rgba(255,176,32,.6)}}
+.auth-hero .logo,.wz-top .wz-dots i.on{will-change:transform}
+.auth-hero .logo{animation:float 3.5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.big-btn:active,.ghost-btn:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}

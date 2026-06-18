@@ -9,7 +9,8 @@ function renderApp(){
   document.getElementById('timerFab').classList.remove('show');document.getElementById('timerPanel').classList.remove('open');
   document.getElementById('hChip').style.display='none';
   if(currentView!=='workout')stopSession();
-  if(currentView==='home')renderHome();else if(currentView==='workout')renderWorkout();else if(currentView==='diet')renderDiet();else if(currentView==='progress')renderProgress();else if(currentView==='profile')renderProfile();else if(currentView==='plans')renderPlans();else if(currentView==='calendar')renderCalendar();
+  if(currentView==='home')renderHome();else if(currentView==='workout')renderWorkout();else if(currentView==='diet')renderDiet();else if(currentView==='progress')renderProgress();else if(currentView==='profile')renderProfile();else if(currentView==='plans')renderPlans();else if(currentView==='calendar')renderCalendar();else if(currentView==='admin')renderAdmin();
+  const _a=document.getElementById('app');if(_a){_a.classList.remove('view-in');void _a.offsetWidth;_a.classList.add('view-in');}
 }
 let calRef=null;
 
@@ -219,6 +220,7 @@ function renderProfile(){
       <div class="pf-row"><span>Target</span><b>${c.cals} kcal · ${c.protein}g P</b></div>
     </div>
     <button class="big-btn" id="editStats">✏️ Edit Body Stats</button>
+    ${isAdmin()?'<button class="ghost-btn" id="adminBtn" style="border-color:rgba(168,85,247,.45);color:#c79bff">🛡️ Admin Panel</button>':''}
     <button class="ghost-btn" id="shareBtn">📤 Share My Progress</button>
     <button class="ghost-btn" id="themeBtn">${isLight?'🌙 Dark Mode':'☀️ Light Mode'}</button>
     <button class="ghost-btn" id="goPlans">📋 Manage My Plans</button>
@@ -227,6 +229,7 @@ function renderProfile(){
     <div class="info-banner" style="margin-top:14px">📱 <b>Install:</b> browser menu → "Add to Home Screen". Your data syncs to the cloud across devices.</div>
     <div style="text-align:center;color:var(--muted);font-size:11px;padding:10px">FitForge · v5.0 💪</div>`;
   document.getElementById('editStats').onclick=editStats;
+  const ab=document.getElementById('adminBtn');if(ab)ab.onclick=()=>setView('admin');
   document.getElementById('shareBtn').onclick=shareProgress;
   document.getElementById('themeBtn').onclick=()=>{toggleTheme();renderProfile();};
   document.getElementById('goPlans').onclick=()=>setView('plans');
@@ -269,4 +272,28 @@ function showCalDay(dk){
   let txt=`${cnt} set${cnt>1?'s':''} completed`;
   if(h.length){const names=[...new Set(h.map(x=>(PLAN[x.day]&&PLAN[x.day].title)||'Workout'))];txt+=` · ${names.join(', ')} ✅`;}
   el.innerHTML=`<div class="info-banner" style="margin-top:14px"><b>${dk}</b><br>💪 ${txt}</div>`;
+}
+
+/* ---------- ADMIN (only admin email) ---------- */
+function renderAdmin(){
+  setHeader('Admin Panel','All registered users');
+  const app=document.getElementById('app');
+  if(!isAdmin()){app.innerHTML='<div class="info-banner">⛔ Access denied.</div>';return;}
+  app.innerHTML='<div class="section-title">All Users</div><div id="adminList"><div class="info-banner">Loading users…</div></div>';
+  if(!db){document.getElementById('adminList').innerHTML='<div class="info-banner">Offline.</div>';return;}
+  db.collection('users').get().then(snap=>{
+    let rows='',n=0;
+    snap.forEach(doc=>{
+      n++;const d=doc.data()||{},blob=d.blob||{};
+      let prof={},hist=[];
+      try{prof=JSON.parse(blob.profile||'{}')||{};}catch(e){}
+      try{hist=JSON.parse(blob.history||'[]')||[];}catch(e){}
+      const email=d.email||'(no email)',phone=prof.phone||'—',name=prof.name||'(no name)';
+      rows+=`<div class="food-row" style="align-items:flex-start"><div class="fr-name">${name}<span>📧 ${email}</span><span>📱 ${phone}</span></div><div class="fr-p">${hist.length} 🏋️</div></div>`;
+    });
+    app.innerHTML=`<div class="section-title">All Users (${n})</div>${rows||'<div class="info-banner">No users yet.</div>'}<button class="ghost-btn" id="adminRefresh">🔄 Refresh</button>`;
+    const r=document.getElementById('adminRefresh');if(r)r.onclick=renderAdmin;
+  }).catch(e=>{
+    app.innerHTML=`<div class="info-banner">Could not load users (<b>${(e&&e.code)||'error'}</b>). Publish the admin read rule in Firestore (see below).</div>`;
+  });
 }

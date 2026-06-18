@@ -9,6 +9,8 @@ let profile=null,plans=[],activePlanId=null,PLAN=[];
 let currentView='home',currentDay=0,dietTab='suggested',authMode='login';
 const uk=k=>`ff:${currentUser}:${k}`;
 const WATER_GOAL=12;
+const ADMIN_EMAIL='rehanbhatti.in@gmail.com';
+function isAdmin(){return (fbEmail||'').toLowerCase()===ADMIN_EMAIL;}
 function dateKey(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
 /* ----- THEME (global, not per-user) ----- */
