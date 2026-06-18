@@ -165,7 +165,6 @@ function openVideo(ex,variant){
   ytCurrentEx=ex.name;ytCurrentLabel=variant.label;
   document.getElementById('vidTitle').childNodes[0].nodeValue=ex.name+' ';
   document.getElementById('vidSub').textContent=variant.label;
-  document.getElementById('vidOpenYT').href='https://www.youtube.com/results?search_query='+encodeURIComponent('deltabolic '+variant.q);
   const saved=getVideo(ex.name,variant.label),searchUrl='https://www.youtube.com/results?search_query='+encodeURIComponent('deltabolic '+variant.q);
   document.getElementById('vidNAyt').href=searchUrl;
   const na=document.getElementById('vidNA'),pl=document.getElementById('ytplayer');
