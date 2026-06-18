@@ -145,7 +145,7 @@ function shareProgress(){
 
 /* ===== VIDEO (in-app YouTube player + shared auto-save) ===== */
 const vidModal=document.getElementById('vidModal');
-let ytPlayer=null,ytReady=false,ytCurrentEx=null;
+let ytPlayer=null,ytReady=false,ytCurrentEx=null,ytCurrentLabel=null;
 window.onYouTubeIframeAPIReady=function(){ytReady=true;};
 function ensurePlayer(cb){
   if(ytPlayer){cb&&cb();return;}
@@ -153,15 +153,15 @@ function ensurePlayer(cb){
   ytPlayer=new YT.Player('ytplayer',{width:'100%',height:'100%',playerVars:{playsinline:1,rel:0,modestbranding:1},events:{onReady:()=>cb&&cb(),onStateChange:onYtState}});
 }
 function onYtState(e){
-  if(e.data===1&&ytPlayer){try{const d=ytPlayer.getVideoData(),vid=d&&d.video_id,title=d&&d.title;if(ytCurrentEx&&vid&&videoTitleMatches(ytCurrentEx,title)&&getVideo(ytCurrentEx)!==vid){saveVideo(ytCurrentEx,vid);showToast('Demo saved for everyone ✓');}}catch(_){}}
+  if(e.data===1&&ytPlayer){try{const d=ytPlayer.getVideoData(),vid=d&&d.video_id,title=d&&d.title;if(ytCurrentEx&&vid&&videoTitleMatches(ytCurrentEx,title)&&getVideo(ytCurrentEx,ytCurrentLabel)!==vid){saveVideo(ytCurrentEx,ytCurrentLabel,vid);showToast('Demo saved for everyone ✓');}}catch(_){}}
 }
 function openVideo(ex,variant){
-  ytCurrentEx=ex.name;
+  ytCurrentEx=ex.name;ytCurrentLabel=variant.label;
   document.getElementById('vidTitle').childNodes[0].nodeValue=ex.name+' ';
   document.getElementById('vidSub').textContent=variant.label;
-  document.getElementById('vidOpenYT').href='https://www.youtube.com/results?search_query='+encodeURIComponent(variant.q+' deltabolic');
-  const saved=getVideo(ex.name);
-  document.getElementById('vidHint').textContent=saved?'Saved demo · playing in-app':'Find this exercise & play it — saves for everyone';
+  document.getElementById('vidOpenYT').href='https://www.youtube.com/results?search_query='+encodeURIComponent('deltabolic '+variant.q);
+  const saved=getVideo(ex.name,variant.label);
+  document.getElementById('vidHint').textContent=saved?'Saved demo · playing in-app':'Find this variation & play it — saves for everyone';
   vidModal.classList.add('open');document.body.style.overflow='hidden';
   ensurePlayer(()=>{try{if(saved)ytPlayer.loadVideoById(saved);else ytPlayer.loadPlaylist({list:YT_UPLOADS,listType:'playlist',index:0});}catch(_){}});
 }

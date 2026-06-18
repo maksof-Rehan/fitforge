@@ -94,16 +94,19 @@ function achievementState(){const prs=LS.get(uk('prs'),{});const maxPR=Object.ke
 /* ----- SHARED VIDEO MAP (global, all users) -----
    Stored in Firestore app/videos {map:{exerciseName:videoId}}; cached locally. */
 let VIDEOMAP=Object.assign({}, (typeof DEFAULT_VIDEOS!=='undefined'?DEFAULT_VIDEOS:{}), LS.get('ff-videos',{}));
-function getVideo(name){return VIDEOMAP[name]||null;}
+function vidKey(name,label){return label?name+'|'+label:name;}
+/* per-variant key first, then exercise-name fallback */
+function getVideo(name,label){return VIDEOMAP[vidKey(name,label)]||VIDEOMAP[name]||null;}
 async function loadVideoMap(){
   if(!db)return;
   try{const snap=await db.collection('app').doc('videos').get();if(snap.exists){const m=(snap.data()||{}).map||{};VIDEOMAP=Object.assign({},DEFAULT_VIDEOS,m);LS.set('ff-videos',m);}}catch(e){console.warn('vid map load',e&&e.code);}
 }
-function saveVideo(name,vid){
+function saveVideo(name,label,vid){
   if(!name||!vid)return;
-  VIDEOMAP[name]=vid;
-  const c=LS.get('ff-videos',{});c[name]=vid;LS.set('ff-videos',c);
-  if(db){try{db.collection('app').doc('videos').set({map:{[name]:vid}},{merge:true}).catch(e=>console.warn('vid save',e&&e.code));}catch(e){}}
+  const key=vidKey(name,label);
+  VIDEOMAP[key]=vid;
+  const c=LS.get('ff-videos',{});c[key]=vid;LS.set('ff-videos',c);
+  if(db){try{db.collection('app').doc('videos').set({map:{[key]:vid}},{merge:true}).catch(e=>console.warn('vid save',e&&e.code));}catch(e){}}
 }
 function videoTitleMatches(name,title){if(!title)return false;title=title.toLowerCase();return name.toLowerCase().split(/[^a-z]+/).filter(t=>t.length>3).some(t=>title.indexOf(t)!==-1);}
 
