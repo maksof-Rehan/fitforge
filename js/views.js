@@ -282,16 +282,18 @@ function renderAdmin(){
   app.innerHTML='<div class="section-title">All Users</div><div id="adminList"><div class="info-banner">Loading users…</div></div>';
   if(!db){document.getElementById('adminList').innerHTML='<div class="info-banner">Offline.</div>';return;}
   db.collection('users').get().then(snap=>{
-    let rows='',n=0;
+    const users=[];
     snap.forEach(doc=>{
-      n++;const d=doc.data()||{},blob=d.blob||{};
+      const d=doc.data()||{},blob=d.blob||{};
       let prof={},hist=[];
       try{prof=JSON.parse(blob.profile||'{}')||{};}catch(e){}
       try{hist=JSON.parse(blob.history||'[]')||[];}catch(e){}
-      const email=d.email||'(no email)',phone=prof.phone||'—',name=prof.name||'(no name)';
-      rows+=`<div class="food-row" style="align-items:flex-start"><div class="fr-name">${name}<span>📧 ${email}</span><span>📱 ${phone}</span></div><div class="fr-p">${hist.length} 🏋️</div></div>`;
+      users.push({name:prof.name||'(no name)',email:d.email||'(no email)',phone:prof.phone||'—',workouts:hist.length,lastActive:d.lastActive||0});
     });
-    app.innerHTML=`<div class="section-title">All Users (${n})</div>${rows||'<div class="info-banner">No users yet.</div>'}<button class="ghost-btn" id="adminRefresh">🔄 Refresh</button>`;
+    users.sort((a,b)=>b.lastActive-a.lastActive);
+    const active7=users.filter(u=>u.lastActive&&(Date.now()-u.lastActive)<7*864e5).length;
+    const rows=users.map(u=>`<div class="food-row" style="align-items:flex-start"><div class="fr-name">${u.name}<span>📧 ${u.email}</span><span>📱 ${u.phone}</span><span>🕒 Last active: ${timeAgo(u.lastActive)}</span></div><div class="fr-p">${u.workouts} 🏋️</div></div>`).join('');
+    app.innerHTML=`<div class="grid2"><div class="stat-card accent"><div class="lbl">Total Users</div><div class="val">${users.length}</div></div><div class="stat-card"><div class="lbl">Active (7d)</div><div class="val">${active7}</div></div></div><div class="section-title">All Users · recent first</div>${rows||'<div class="info-banner">No users yet.</div>'}<button class="ghost-btn" id="adminRefresh">🔄 Refresh</button>`;
     const r=document.getElementById('adminRefresh');if(r)r.onclick=renderAdmin;
   }).catch(e=>{
     app.innerHTML=`<div class="info-banner">Could not load users (<b>${(e&&e.code)||'error'}</b>). Publish the admin read rule in Firestore (see below).</div>`;

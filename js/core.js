@@ -22,7 +22,9 @@ const _lsset=LS.set;
 LS.set=function(k,v){_lsset.call(LS,k,v);if(currentUser&&k.indexOf('ff:'+currentUser+':')===0)scheduleSync();};
 let syncT=null;
 function scheduleSync(){if(!db||!currentUser)return;clearTimeout(syncT);syncT=setTimeout(pushCloud,1500);}
-function pushCloud(){if(!db||!currentUser)return;const pre='ff:'+currentUser+':',blob={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf(pre)===0)blob[k.slice(pre.length)]=localStorage.getItem(k);}db.collection('users').doc(currentUser).set({blob,email:fbEmail||''}).catch(e=>console.warn('sync up',e&&e.code));}
+function pushCloud(){if(!db||!currentUser)return;const pre='ff:'+currentUser+':',blob={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf(pre)===0)blob[k.slice(pre.length)]=localStorage.getItem(k);}db.collection('users').doc(currentUser).set({blob,email:fbEmail||'',lastActive:Date.now()},{merge:true}).catch(e=>console.warn('sync up',e&&e.code));}
+function touchActivity(){if(!db||!currentUser)return;try{db.collection('users').doc(currentUser).set({lastActive:Date.now(),email:fbEmail||''},{merge:true}).catch(()=>{});}catch(e){}}
+function timeAgo(ts){if(!ts)return 'never';const s=Math.floor((Date.now()-ts)/1000);if(s<60)return 'just now';const m=Math.floor(s/60);if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';const d=Math.floor(h/24);if(d<30)return d+'d ago';return Math.floor(d/30)+'mo ago';}
 async function pullCloud(uid){try{const snap=await db.collection('users').doc(uid).get();if(snap.exists){const blob=(snap.data()||{}).blob||{};Object.keys(blob).forEach(sub=>{try{localStorage.setItem('ff:'+uid+':'+sub,blob[sub]);}catch(e){}});}}catch(e){console.warn('sync down',e&&e.code);}}
 
 /* ----- USER / PLANS ----- */

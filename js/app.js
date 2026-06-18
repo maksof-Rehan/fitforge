@@ -229,7 +229,7 @@ async function proceedAfterAuth(user){
   currentView='home';currentDay=0;
   document.getElementById('auth').classList.remove('show');
   document.getElementById('verify').classList.remove('show');
-  await pullCloud(user.uid);loadUser();loadVideoMap();
+  await pullCloud(user.uid);loadUser();loadVideoMap();touchActivity();
   if(profile&&plans.length){bootUI();}else{startWizard();}
   if(!user.emailVerified)showToast('📧 Please verify your email (optional)');
 }
