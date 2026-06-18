@@ -151,6 +151,24 @@ const DEFAULT_VIDEOS={
   "Rear Delt Fly|Pec Deck":"0LJ-JujImCs",
   "Rear Delt Fly|Face Pull":"lMJUXEvcMkQ",
   "Arnold Press|Dumbbell":"6K_N9AGhItQ",
-  "Front Raise|Dumbbell":"9ThlTL25DH8"
+  "Front Raise|Dumbbell":"9ThlTL25DH8",
+  "Barbell Curl|EZ Bar":"54x2WF1_Suc",
+  "Barbell Curl|Straight":"54x2WF1_Suc",
+  "Incline Dumbbell Curl|Dumbbell":"uCUaRFlA9vE",
+  "Hammer Curl|Dumbbell":"lmIo_gVE8T4",
+  "Hammer Curl|Rope":"HTtd5uMFVz8",
+  "Preacher Curl|Machine":"S4dDLfp3e8w",
+  "Preacher Curl|EZ Bar":"dXZl_9Ko6HI",
+  "Cable Curl|Bayesian":"_Z8Afknw_Fc",
+  "Cable Curl|Standing":"9Ark9S11uXw",
+  "Close-Grip Bench|Barbell":"6zWoAllRufg",
+  "Tricep Pushdown|Rope":"1FoWlRS2Edc",
+  "Tricep Pushdown|Bar":"1FjkhpZsaxc",
+  "Overhead Extension|Cable":"9Ark9S11uXw",
+  "Overhead Extension|Dumbbell":"b_r_LW4HEcM",
+  "Skullcrusher|EZ Bar":"K3mFeNz4e3w",
+  "Tricep Dips|Bodyweight":"4ua3MzaU0QU",
+  "Tricep Dips|Bench":"4ua3MzaU0QU",
+  "Squat|Barbell":"dW3zj79xfrc"
 };
 const YT_UPLOADS="UUerweoBkwQOb_zwx3NfUD1g"; // DeltaBolic uploads playlist
