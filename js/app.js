@@ -222,7 +222,7 @@ function boot(){
   auth=firebase.auth();db=firebase.firestore();
   try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{});}catch(e){}
   auth.onAuthStateChanged(async user=>{
-    if(user){currentUser=user.uid;fbEmail=user.email;if(!user.emailVerified){showVerify();return;}await proceedAfterAuth(user);}
+    if(user){currentUser=user.uid;fbEmail=user.email;await proceedAfterAuth(user);}
     else{currentUser=null;profile=null;plans=[];pendingName='';pendingPhone='';document.getElementById('bottomNav').style.display='none';document.getElementById('wizard').classList.remove('show');document.getElementById('verify').classList.remove('show');showAuth();}
   });
 }
@@ -232,6 +232,7 @@ async function proceedAfterAuth(user){
   document.getElementById('verify').classList.remove('show');
   await pullCloud(user.uid);loadUser();loadVideoMap();
   if(profile&&plans.length){bootUI();}else{startWizard();}
+  if(!user.emailVerified)showToast('📧 Please verify your email (optional)');
 }
 function showVerify(){
   document.getElementById('auth').classList.remove('show');

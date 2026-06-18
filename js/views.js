@@ -21,7 +21,9 @@ function renderHome(){
   const sched=LS.get(uk('schedule'),{}),schedIdx=sched[new Date().getDay()],hd=(schedIdx!=null?schedIdx:currentDay)%PLAN.length;
   const td=PLAN[hd],water=getWater(),wpct=Math.min(100,Math.round(water/WATER_GOAL*100));
   const q=QUOTES[(new Date().getDate()+new Date().getMonth())%QUOTES.length];
+  const unverified=auth&&auth.currentUser&&!auth.currentUser.emailVerified;
   document.getElementById('app').innerHTML=`
+    ${unverified?`<div class="info-banner" id="verifyBanner" style="border-color:rgba(255,176,32,.45);background:linear-gradient(135deg,rgba(255,176,32,.13),transparent);cursor:pointer">📧 <b>Email not verified.</b> Tap to send the verification link — or ignore, app works fine.</div>`:''}
     <div class="hero"><h2>${g.emoji} ${g.label}</h2><div class="focus">Today's targets — let's get to work</div>
       <div class="stats"><div class="stat"><b>${c.bmi}</b><span>BMI · ${c.bmiCat}</span></div><div class="stat"><b>${c.cals}</b><span>Calories</span></div><div class="stat"><b>${c.protein}g</b><span>Protein</span></div></div></div>
     <div class="quote">“${q}”</div>
@@ -47,6 +49,7 @@ function renderHome(){
   document.getElementById('wPlus').onclick=()=>changeWater(1);
   document.getElementById('wMinus').onclick=()=>changeWater(-1);
   document.querySelectorAll('#app .plan-card').forEach(el=>el.onclick=()=>switchPlan(el.dataset.pid));
+  const vb=document.getElementById('verifyBanner');if(vb)vb.onclick=()=>{const u=auth&&auth.currentUser;if(u)u.sendEmailVerification().then(()=>showToast('Verification email sent ✓')).catch(e=>showToast(fbErr(e)));};
 }
 
 /* ---------- PLANS ---------- */
