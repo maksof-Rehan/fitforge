@@ -121,11 +121,36 @@ const ACHIEVEMENTS=[
 /* Seed video map (exercise name -> YouTube id) from DeltaBolic. The shared/global
    map in Firestore overrides/extends this; auto-saved when a user plays a match. */
 const DEFAULT_VIDEOS={
-  "Romanian Deadlift":"QbbURJEUALw",
-  "Bulgarian Split Squat":"Cow3ESXmrTU",
-  "Barbell Row":"qvqVbDPme5k",
-  "Hip Thrust":"KBEF9XsiJ-w",
-  "Leg Press":"KMUiCMLXOAk",
-  "Seated Cable Row":"bCd7Xil89F8"
+  /* exercise-name fallbacks */
+  "Romanian Deadlift":"QbbURJEUALw","Bulgarian Split Squat":"Cow3ESXmrTU","Hip Thrust":"KBEF9XsiJ-w","Leg Press":"KMUiCMLXOAk",
+  /* per-variant (name|VariantLabel) */
+  "Bench Press|Barbell":"XjrsqShr-Ic",
+  "Bench Press|Dumbbell":"WbCEvFA0NJs",
+  "Incline Press|Dumbbell":"8fXfwG4ftaQ",
+  "Incline Press|Barbell":"98HWfiRonkE",
+  "Chest Dips|Bodyweight":"eicOUO9WaJc",
+  "Chest Dips|Weighted":"eicOUO9WaJc",
+  "Cable Fly|High-Low":"y4RJDSOBEl8",
+  "Cable Fly|Mid":"I-Ue34qLxc4",
+  "Machine Chest Fly|Pec Deck":"a9vQ_hwIksU",
+  "Machine Chest Fly|Dumbbell":"rk8YayRoTRQ",
+  "Pull-ups|Bodyweight":"eDP_OOhMTZ4",
+  "Pull-ups|Assisted":"CdO5BvP6Ti8",
+  "Barbell Row|Barbell":"phVtqawIgbk",
+  "Barbell Row|T-Bar":"phVtqawIgbk",
+  "Lat Pulldown|Wide":"7Cjc_aXoQ_I",
+  "Lat Pulldown|Neutral":"-NKnCw9LZqA",
+  "Seated Cable Row|Cable":"qD1WZ5pSuvk",
+  "Seated Cable Row|Chest-Supported":"G35gTqGcXXA",
+  "Lat Pullover|Cable":"Datv2L6t3-4",
+  "Lat Pullover|Dumbbell":"6yYVcIOAERY",
+  "Overhead Press|Dumbbell":"k6tzKisR3NY",
+  "Overhead Press|Barbell":"zoN5EH50Dro",
+  "Lateral Raise|Dumbbell":"Kl3LEzQ5Zqs",
+  "Lateral Raise|Cable":"9ilIKuy6B0g",
+  "Rear Delt Fly|Pec Deck":"0LJ-JujImCs",
+  "Rear Delt Fly|Face Pull":"lMJUXEvcMkQ",
+  "Arnold Press|Dumbbell":"6K_N9AGhItQ",
+  "Front Raise|Dumbbell":"9ThlTL25DH8"
 };
 const YT_UPLOADS="UUerweoBkwQOb_zwx3NfUD1g"; // DeltaBolic uploads playlist
