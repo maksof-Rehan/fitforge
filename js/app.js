@@ -143,10 +143,29 @@ function shareProgress(){
   else showToast('Sharing not supported');
 }
 
-/* ===== VIDEO ===== */
+/* ===== VIDEO (in-app YouTube player + shared auto-save) ===== */
 const vidModal=document.getElementById('vidModal');
-function openVideo(ex,variant){document.getElementById('vidTitle').childNodes[0].nodeValue=ex.name+' ';document.getElementById('vidSub').textContent=variant.label;document.getElementById('vidFbTitle').textContent=ex.name+' — '+variant.label;document.getElementById('vidOpenDemo').href=`https://www.google.com/search?q=${encodeURIComponent(variant.q+' animated gif')}&tbm=isch&tbs=itp:animated`;document.getElementById('vidOpenYT').href=`https://www.youtube.com/results?search_query=${encodeURIComponent(variant.q)}`;vidModal.classList.add('open');document.body.style.overflow='hidden';}
-function closeVideo(){vidModal.classList.remove('open');document.body.style.overflow='';}
+let ytPlayer=null,ytReady=false,ytCurrentEx=null;
+window.onYouTubeIframeAPIReady=function(){ytReady=true;};
+function ensurePlayer(cb){
+  if(ytPlayer){cb&&cb();return;}
+  if(!ytReady||typeof YT==='undefined'||!YT.Player){setTimeout(()=>ensurePlayer(cb),250);return;}
+  ytPlayer=new YT.Player('ytplayer',{width:'100%',height:'100%',playerVars:{playsinline:1,rel:0,modestbranding:1},events:{onReady:()=>cb&&cb(),onStateChange:onYtState}});
+}
+function onYtState(e){
+  if(e.data===1&&ytPlayer){try{const d=ytPlayer.getVideoData(),vid=d&&d.video_id,title=d&&d.title;if(ytCurrentEx&&vid&&videoTitleMatches(ytCurrentEx,title)&&getVideo(ytCurrentEx)!==vid){saveVideo(ytCurrentEx,vid);showToast('Demo saved for everyone ✓');}}catch(_){}}
+}
+function openVideo(ex,variant){
+  ytCurrentEx=ex.name;
+  document.getElementById('vidTitle').childNodes[0].nodeValue=ex.name+' ';
+  document.getElementById('vidSub').textContent=variant.label;
+  document.getElementById('vidOpenYT').href='https://www.youtube.com/results?search_query='+encodeURIComponent(variant.q+' deltabolic');
+  const saved=getVideo(ex.name);
+  document.getElementById('vidHint').textContent=saved?'Saved demo · playing in-app':'Find this exercise & play it — saves for everyone';
+  vidModal.classList.add('open');document.body.style.overflow='hidden';
+  ensurePlayer(()=>{try{if(saved)ytPlayer.loadVideoById(saved);else ytPlayer.loadPlaylist({list:YT_UPLOADS,listType:'playlist',index:0});}catch(_){}});
+}
+function closeVideo(){vidModal.classList.remove('open');document.body.style.overflow='';try{if(ytPlayer)ytPlayer.pauseVideo();}catch(_){}}
 document.getElementById('vidClose').onclick=closeVideo;
 vidModal.addEventListener('click',e=>{if(e.target===vidModal)closeVideo();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(vidModal.classList.contains('open'))closeVideo();if(modal.classList.contains('open'))closeModal();}});
@@ -194,7 +213,7 @@ function boot(){
   auth=firebase.auth();db=firebase.firestore();
   try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{});}catch(e){}
   auth.onAuthStateChanged(async user=>{
-    if(user){currentUser=user.uid;fbEmail=user.email;currentView='home';currentDay=0;document.getElementById('auth').classList.remove('show');await pullCloud(user.uid);loadUser();if(profile&&plans.length){bootUI();}else{startWizard();}}
+    if(user){currentUser=user.uid;fbEmail=user.email;currentView='home';currentDay=0;document.getElementById('auth').classList.remove('show');await pullCloud(user.uid);loadUser();loadVideoMap();if(profile&&plans.length){bootUI();}else{startWizard();}}
     else{currentUser=null;profile=null;plans=[];pendingName='';document.getElementById('bottomNav').style.display='none';document.getElementById('wizard').classList.remove('show');showAuth();}
   });
 }

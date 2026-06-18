@@ -118,3 +118,14 @@ const ACHIEVEMENTS=[
   {id:"strong",e:"🦍",t:"Strong",d:"Lift 100kg on any move",test:s=>s.maxPR>=100},
   {id:"weekly",e:"📅",t:"Consistent",d:"3 workouts in a week",test:s=>s.weekWorkouts>=3}
 ];
+/* Seed video map (exercise name -> YouTube id) from DeltaBolic. The shared/global
+   map in Firestore overrides/extends this; auto-saved when a user plays a match. */
+const DEFAULT_VIDEOS={
+  "Romanian Deadlift":"QbbURJEUALw",
+  "Bulgarian Split Squat":"Cow3ESXmrTU",
+  "Barbell Row":"qvqVbDPme5k",
+  "Hip Thrust":"KBEF9XsiJ-w",
+  "Leg Press":"KMUiCMLXOAk",
+  "Seated Cable Row":"bCd7Xil89F8"
+};
+const YT_UPLOADS="UUerweoBkwQOb_zwx3NfUD1g"; // DeltaBolic uploads playlist

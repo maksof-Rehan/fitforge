@@ -54,8 +54,8 @@
 <div class="vid-modal" id="vidModal">
   <div class="vid-box">
     <div class="vid-header"><div class="title" id="vidTitle">Exercise<span id="vidSub">Tutorial</span></div><button class="vid-close" id="vidClose"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
-    <div class="vid-wrap"><div class="vid-fallback"><div class="big">🏋️</div><h4 id="vidFbTitle">Exercise Demo</h4><p>Tap below for animated GIF demos and a video tutorial.</p><a id="vidOpenDemo" class="demo-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> View Animated Demos</a></div></div>
-    <div class="vid-footer"><span class="hint">Demo + tutorial</span><a id="vidOpenYT" target="_blank" rel="noopener">▶ Video</a></div>
+    <div class="vid-wrap"><div id="ytplayer"></div></div>
+    <div class="vid-footer"><span class="hint" id="vidHint">Play the right video — it saves for everyone</span><a id="vidOpenYT" target="_blank" rel="noopener">↗ Find on YouTube</a></div>
   </div>
 </div>
 
@@ -88,5 +88,7 @@
 <script src="js/core.js"></script>
 <script src="js/views.js"></script>
 <script src="js/app.js"></script>
+<!-- YouTube IFrame Player API (in-app video) -->
+<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>

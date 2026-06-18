@@ -91,6 +91,22 @@ function logCalorieDay(cal,p){const all=LS.get(uk('calhist'),{});all[dateKey()]=
 /* ----- ACHIEVEMENTS ----- */
 function achievementState(){const prs=LS.get(uk('prs'),{});const maxPR=Object.keys(prs).reduce((m,k)=>Math.max(m,prs[k]),0);return{workouts:totalWorkouts(),streak:streak(),waterHit:getWater()>=WATER_GOAL,maxPR,weekWorkouts:workoutsInLastDays(7)};}
 
+/* ----- SHARED VIDEO MAP (global, all users) -----
+   Stored in Firestore app/videos {map:{exerciseName:videoId}}; cached locally. */
+let VIDEOMAP=Object.assign({}, (typeof DEFAULT_VIDEOS!=='undefined'?DEFAULT_VIDEOS:{}), LS.get('ff-videos',{}));
+function getVideo(name){return VIDEOMAP[name]||null;}
+async function loadVideoMap(){
+  if(!db)return;
+  try{const snap=await db.collection('app').doc('videos').get();if(snap.exists){const m=(snap.data()||{}).map||{};VIDEOMAP=Object.assign({},DEFAULT_VIDEOS,m);LS.set('ff-videos',m);}}catch(e){console.warn('vid map load',e&&e.code);}
+}
+function saveVideo(name,vid){
+  if(!name||!vid)return;
+  VIDEOMAP[name]=vid;
+  const c=LS.get('ff-videos',{});c[name]=vid;LS.set('ff-videos',c);
+  if(db){try{db.collection('app').doc('videos').set({map:{[name]:vid}},{merge:true}).catch(e=>console.warn('vid save',e&&e.code));}catch(e){}}
+}
+function videoTitleMatches(name,title){if(!title)return false;title=title.toLowerCase();return name.toLowerCase().split(/[^a-z]+/).filter(t=>t.length>3).some(t=>title.indexOf(t)!==-1);}
+
 /* ----- TOOLS: 1RM + plate calc ----- */
 function oneRM(w,reps){return Math.round(w*(1+reps/30));}
 function platesFor(target,bar){let perSide=(target-bar)/2;if(perSide<=0)return [];const plates=[25,20,15,10,5,2.5,1.25],out=[];plates.forEach(p=>{while(perSide>=p-0.001){out.push(p);perSide=+(perSide-p).toFixed(3);}});return out;}

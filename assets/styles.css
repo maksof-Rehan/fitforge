@@ -233,6 +233,8 @@ main{padding:18px}
 .vid-close{background:rgba(255,255,255,.08);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .vid-close svg{width:18px;height:18px;fill:currentColor}
 .vid-wrap{position:relative;width:100%;padding-top:70%;background:#0a0a14}
+.vid-wrap #ytplayer{position:absolute;inset:0;width:100%;height:100%}
+.vid-wrap iframe{position:absolute;inset:0;width:100%!important;height:100%!important;border:0}
 .vid-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;background:linear-gradient(135deg,#0f0f1a,#181826)}
 .vid-fallback .big{font-size:52px;margin-bottom:12px}
 .vid-fallback h4{margin:0 0 6px;font-size:16px;font-weight:800;color:#fff}
