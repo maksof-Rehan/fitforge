@@ -135,13 +135,20 @@ function renderDiet(){
   dietTab==='suggested'?renderSuggested(c):renderBuilder(c);
 }
 function renderSuggested(c){
-  const F=allFoods(),meals=suggestedMeals(),tot=sumMacros(meals.flatMap(m=>m.items));
+  const P=c.protein,C=c.cals,Carb=c.carbs,Fat=c.fat,goal=GOALS[activePlan().goal].label;
+  const meals=[
+    {t:"Breakfast",e:"🍳",cf:.25,pf:.25,ex:"Whole eggs / egg whites or Greek yogurt + oats + a fruit"},
+    {t:"Pre-Workout · 60–90 min before",e:"⚡",cf:.12,pf:.10,ex:"Banana or oats + black coffee — carbs to fuel the session"},
+    {t:"Post-Workout",e:"🥤",cf:.18,pf:.22,ex:"Whey protein + fast carbs (banana / white rice)"},
+    {t:"Lunch",e:"🍗",cf:.25,pf:.25,ex:"Lean protein (chicken / fish / lean meat) + rice or potato + vegetables"},
+    {t:"Dinner",e:"🌙",cf:.20,pf:.18,ex:"Protein (chicken / paneer / fish / lentils) + big salad + a healthy fat (olive oil / nuts)"}
+  ];
   document.getElementById('dietBody').innerHTML=`
-    <div class="info-banner">Tailored to your goal. This plan ≈ <b>${Math.round(tot.cal)} kcal</b>, <b>${Math.round(tot.p)}g protein</b>. Your target: ${c.cals} kcal / ${c.protein}g. Adjust portions to match.</div>
-    ${meals.map(m=>{const ms=sumMacros(m.items),li=m.items.map(it=>`${it.q!==1?it.q+'× ':''}${F[it.f].n}`).join(' + ');return `<div class="exercise"><div class="ex-head"><div class="ex-num" style="font-size:15px">${m.e}</div><div class="ex-name"><h3>${m.t}</h3><div class="sub">${Math.round(ms.cal)} kcal · ${Math.round(ms.p)}g protein</div></div></div><div class="diet-items"><div class="diet-item">• ${li}${m.extra?` <span style="color:var(--muted)">${m.extra}</span>`:''}</div></div></div>`;}).join('')}
-    <div class="info-banner">💡 Eat sugary fruit around your workout · keep oil low for fat loss · drink 3-4L water daily.</div>
-    <button class="ghost-btn" id="copyToMy">📋 Copy to "My Plan" to edit</button>`;
-  document.getElementById('copyToMy').onclick=()=>{LS.set(uk('diet'),suggestedMeals().flatMap(m=>m.items.map(it=>({f:it.f,q:it.q}))));dietTab='builder';renderDiet();showToast('Copied');};
+    <div class="info-banner">📚 <b>Research-based plan · ${goal}</b><br>Daily target: <b>${C} kcal</b> · <b>${P}g protein</b> · ${Carb}g carbs · ${Fat}g fat. Spread protein across meals (~${Math.round(P/5)}g each), keep most carbs around training, and eat vegetables/fiber at every meal.</div>
+    ${meals.map(m=>`<div class="exercise"><div class="ex-head"><div class="ex-num" style="font-size:15px">${m.e}</div><div class="ex-name"><h3>${m.t}</h3><div class="sub">Aim ~${Math.round(C*m.cf)} kcal · ~${Math.round(P*m.pf)}g protein</div></div></div><div class="diet-items"><div class="diet-item">• ${m.ex}</div></div></div>`).join('')}
+    <div class="info-banner">🔬 <b>Why this works:</b> protein every 3–4h maximises muscle protein synthesis · carbs around training fuel performance & recovery · fibre + 3–4L water improve fullness and digestion · keep dietary fat ~0.8g/kg · ${goal==='Fat Loss'||goal==='Recomp'?'stay in a small calorie deficit and protein high to preserve muscle.':goal==='Muscle Gain'?'eat a slight surplus with high protein to build muscle.':'match calories to maintenance.'}</div>
+    <button class="ghost-btn" id="toMy">🛠️ Build my own & track exact macros</button>`;
+  document.getElementById('toMy').onclick=()=>{dietTab='builder';renderDiet();};
 }
 function renderBuilder(c){
   const F=allFoods(),items=LS.get(uk('diet'),[]),tot=sumMacros(items),meals=LS.get(uk('meals'),[]);
@@ -155,7 +162,7 @@ function renderBuilder(c){
     <div class="grid2" style="margin-top:4px"><button class="ghost-btn" id="addFood" style="margin-top:0">＋ Custom Food</button><button class="ghost-btn" id="saveMeal" style="margin-top:0">💾 Save as Meal</button></div>
     ${items.length?`<button class="ghost-btn danger-btn" id="clearDiet">🗑️ Clear all</button>`:`<div class="info-banner">Add food above — the app sums calories + protein vs your target. Save combos as meals to reuse. 💪</div>`}
     ${calorieHistoryChart()}`;
-  document.getElementById('foodList').innerHTML=items.map((it,i)=>{const f=F[it.f];if(!f)return '';return `<div class="food-row"><div class="fr-name">${f.n}<span>${it.q} × ${f.u} · ${Math.round(f.cal*it.q)} kcal</span></div><div class="fr-p">${Math.round(f.p*it.q)}g P</div><button class="fr-del" data-i="${i}">×</button></div>`;}).join('');
+  document.getElementById('foodList').innerHTML=items.map((it,i)=>{const f=F[it.f];if(!f)return '';return `<div class="food-row"><div class="fr-name">${f.n}<span>${it.q} × ${f.u} · ${Math.round(f.cal*it.q)} kcal · ${Math.round(f.p*it.q)}P / ${Math.round(f.c*it.q)}C / ${Math.round(f.f*it.q)}F</span></div><div class="fr-p">${Math.round(f.p*it.q)}g P</div><button class="fr-del" data-i="${i}">×</button></div>`;}).join('');
   document.getElementById('foodAdd').onclick=()=>{const f=+document.getElementById('foodSel').value,q=+document.getElementById('foodQty').value||1,arr=LS.get(uk('diet'),[]);arr.push({f,q});LS.set(uk('diet'),arr);renderBuilder(c);};
   document.querySelectorAll('#foodList .fr-del').forEach(b=>b.onclick=()=>{const arr=LS.get(uk('diet'),[]);arr.splice(+b.dataset.i,1);LS.set(uk('diet'),arr);renderBuilder(c);});
   document.getElementById('addFood').onclick=openAddFood;
