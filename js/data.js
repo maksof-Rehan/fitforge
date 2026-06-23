@@ -192,7 +192,19 @@ const DEFAULT_VIDEOS={
   "Ab Wheel Rollout|Wheel":"kISuoI7QCYk",
   "Plank|Hold":"xe2MXatLTUw",
   "Russian Twist|Weighted":"vGwnJSh4Q2Q",
-  "Front Raise|Cable":"NdQE5Fhfqn4"
+  "Front Raise|Cable":"NdQE5Fhfqn4",
+  "Seated Chest Press|Cable":"Qu7-ceCvq7w",
+  "Seated Chest Press|Machine":"6v4nrRVySj0",
+  "Incline Fly|Cable":"I-Ue34qLxc4",
+  "Incline Fly|Dumbbell":"8fXfwG4ftaQ",
+  "Walking Lunges|Dumbbell":"mJilHWIBWO8",
+  "Walking Lunges|Barbell":"EWBiNhxDnmQ",
+  "Glute Adduction|Machine":"tu4o4quPv2k",
+  "Glute Kickback|Cable":"UbOcViik3hk",
+  "Forearms (Superset)|Wrist Curl":"d5YiFNoiCa0",
+  "Forearms (Superset)|Dead Hang":"XPcT3capkyk",
+  "Forearms (Superset)|Reverse Wrist Curl":"B699nq91i_w",
+  "Forearms (Superset)|Farmer Walk":"5LKllcK6PfQ"
 };
 const YT_UPLOADS="UUerweoBkwQOb_zwx3NfUD1g"; // DeltaBolic uploads playlist
 
