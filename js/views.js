@@ -221,7 +221,7 @@ function renderProgress(){
 /* ---------- PROFILE ---------- */
 function renderProfile(){
   setHeader('Profile','Account & settings');
-  const ap=activePlan(),c=calc(profile,ap.goal),isLight=LS.get('ff-theme','dark')==='light';
+  const ap=activePlan(),c=calc(profile,ap.goal),th=LS.get('ff-theme','dark');
   document.getElementById('app').innerHTML=`
     <div class="form-card">
       <div class="pf-row"><span>Account</span><b>${profile.name||'—'}</b></div>
@@ -236,7 +236,11 @@ function renderProfile(){
     <button class="big-btn" id="editStats">✏️ Edit Body Stats</button>
     ${isAdmin()?'<button class="ghost-btn" id="adminBtn" style="border-color:rgba(168,85,247,.45);color:#c79bff">🛡️ Admin Panel</button>':''}
     <button class="ghost-btn" id="shareBtn">📤 Share My Progress</button>
-    <button class="ghost-btn" id="themeBtn">${isLight?'🌙 Dark Mode':'☀️ Light Mode'}</button>
+    <div class="form-card" style="margin-top:10px"><div class="field" style="margin:0"><label>Theme</label><div class="opt-row">
+      <button class="opt ${th==='dark'?'sel':''}" data-th="dark">🌙 Dark</button>
+      <button class="opt ${th==='light'?'sel':''}" data-th="light">☀️ Light</button>
+      <button class="opt ${th==='minimal'?'sel':''}" data-th="minimal">⚪ Minimal</button>
+    </div></div></div>
     <button class="ghost-btn" id="goPlans">📋 Manage My Plans</button>
     <button class="ghost-btn" id="resetDay">🔄 Reset Today's Workout</button>
     <button class="ghost-btn danger-btn" id="logoutBtn">🚪 Logout</button>
@@ -245,7 +249,7 @@ function renderProfile(){
   document.getElementById('editStats').onclick=editStats;
   const ab=document.getElementById('adminBtn');if(ab)ab.onclick=()=>setView('admin');
   document.getElementById('shareBtn').onclick=shareProgress;
-  document.getElementById('themeBtn').onclick=()=>{toggleTheme();renderProfile();};
+  document.querySelectorAll('#app .opt[data-th]').forEach(b=>b.onclick=()=>{setTheme(b.dataset.th);renderProfile();});
   document.getElementById('goPlans').onclick=()=>setView('plans');
   document.getElementById('resetDay').onclick=()=>{if(confirm("Reset today's workout?")){LS.del(progressKey(currentDay));showToast('Reset');}};
   document.getElementById('logoutBtn').onclick=()=>{if(confirm('Logout?'))logout();};

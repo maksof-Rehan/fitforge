@@ -14,8 +14,8 @@ function isAdmin(){return (fbEmail||'').toLowerCase()===ADMIN_EMAIL;}
 function dateKey(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
 /* ----- THEME (global, not per-user) ----- */
-function applyTheme(){document.body.classList.toggle('light',LS.get('ff-theme','dark')==='light');}
-function toggleTheme(){LS.set('ff-theme',LS.get('ff-theme','dark')==='light'?'dark':'light');applyTheme();}
+function applyTheme(){const t=LS.get('ff-theme','dark');document.body.classList.toggle('light',t==='light');document.body.classList.toggle('minimal',t==='minimal');}
+function setTheme(t){LS.set('ff-theme',t);applyTheme();}
 
 /* ----- CLOUD SYNC: mirror this user's localStorage keys to one Firestore doc ----- */
 const _lsset=LS.set;
