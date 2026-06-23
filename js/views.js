@@ -17,26 +17,37 @@ let calRef=null;
 /* ---------- HOME ---------- */
 function renderHome(){
   const ap=activePlan(),c=calc(profile,ap.goal),g=GOALS[ap.goal];
-  setHeader(profile.name?`Hi, ${profile.name} 👋`:'FitForge',`${g.label} · ${EXP_LABEL[ap.experience]} · ${ap.days} day`);
+  setHeader(profile.name?`Hi, ${profile.name} 👋`:'FitForge',new Date().toDateString());
   const chip=document.getElementById('hChip');chip.style.display='inline-flex';chip.innerHTML=`<span>${ap.emoji||g.emoji} ${ap.name}</span>`;chip.onclick=()=>setView('plans');
   const sched=LS.get(uk('schedule'),{}),schedIdx=sched[new Date().getDay()],hd=(schedIdx!=null?schedIdx:currentDay)%PLAN.length;
   const td=PLAN[hd],water=getWater(),wpct=Math.min(100,Math.round(water/WATER_GOAL*100));
   const q=QUOTES[(new Date().getDate()+new Date().getMonth())%QUOTES.length];
+  const diet=loadDiet(),dt=sumMacros(dietItems(diet)),sc=dietScore(dt,c);
+  const wl=LS.get(uk('weights'),[]),lastW=wl.length?wl[wl.length-1].w:profile.weight;
+  const tr=LS.get(uk('trained'),{}),DOW=['S','M','T','W','T','F','S'],last7=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);last7.push({l:DOW[d.getDay()],n:tr[dateKey(d)]||0});}
+  const maxN=Math.max(1,...last7.map(x=>x.n)),daysActive=last7.filter(x=>x.n).length;
+  let spark='';
+  if(wl.length>=2){const ws=wl.map(x=>x.w),mn=Math.min(...ws),mx=Math.max(...ws),rg=(mx-mn)||1,n=wl.length,W=300,H=54,pad=4;const pts=wl.map((x,i)=>{const px=pad+(i/(n-1))*(W-2*pad),py=pad+(1-(x.w-mn)/rg)*(H-2*pad);return `${px.toFixed(1)},${py.toFixed(1)}`;}).join(' ');const ch=(wl[n-1].w-wl[0].w).toFixed(1);spark=`<div class="dash-card"><div class="dch"><span>Weight Trend</span><span style="${ch>0?'color:var(--warn)':ch<0?'color:var(--ok)':''}">${ch>0?'+':''}${ch} kg</span></div><svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="#ff5a3c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;}
   const unverified=auth&&auth.currentUser&&!auth.currentUser.emailVerified;
   document.getElementById('app').innerHTML=`
     ${unverified?`<div class="info-banner" id="verifyBanner" style="border-color:rgba(255,176,32,.45);background:linear-gradient(135deg,rgba(255,176,32,.13),transparent);cursor:pointer">📧 <b>Email not verified.</b> Tap to send the verification link — or ignore, app works fine.</div>`:''}
-    <div class="hero"><h2>${g.emoji} ${g.label}</h2><div class="focus">Today's targets — let's get to work</div>
-      <div class="stats"><div class="stat"><b>${c.bmi}</b><span>BMI · ${c.bmiCat}</span></div><div class="stat"><b>${c.cals}</b><span>Calories</span></div><div class="stat"><b>${c.protein}g</b><span>Protein</span></div></div></div>
-    <div class="quote">“${q}”</div>
-    <div class="grid2"><div class="stat-card accent"><div class="lbl">🔥 Streak</div><div class="val">${streak()}<small> days</small></div></div><div class="stat-card"><div class="lbl">Workouts Done</div><div class="val">${totalWorkouts()}</div></div></div>
-    <div class="grid2" style="margin-top:10px"><div class="stat-card"><div class="lbl">Daily Calories</div><div class="val">${c.cals}<small> kcal</small></div></div><div class="stat-card"><div class="lbl">Maintenance</div><div class="val">${c.tdee}<small> kcal</small></div></div></div>
-    <div class="macro-row"><div class="macro p"><b>${c.protein}g</b><span>Protein</span></div><div class="macro c"><b>${c.carbs}g</b><span>Carbs</span></div><div class="macro f"><b>${c.fat}g</b><span>Fat</span></div></div>
+    <div class="hero"><h2>${g.emoji} ${g.label}</h2><div class="focus">“${q}”</div>
+      <div class="stats"><div class="stat"><b>${c.bmi}</b><span>BMI · ${c.bmiCat}</span></div><div class="stat"><b>${c.cals}</b><span>Cal/day</span></div><div class="stat"><b>${c.protein}g</b><span>Protein</span></div></div></div>
+    <div class="tiles">
+      <div class="tile grad"><div class="ti">🔥</div><div class="tv">${streak()}<small> days</small></div><div class="tl">Streak</div></div>
+      <div class="tile"><div class="ti">🏋️</div><div class="tv">${totalWorkouts()}</div><div class="tl">Workouts</div></div>
+      <div class="tile"><div class="ti">⚖️</div><div class="tv">${lastW}<small> kg</small></div><div class="tl">Weight</div></div>
+      <div class="tile" id="tileDiet" style="cursor:pointer"><div class="ti">💯</div><div class="tv" style="color:${sc.color}">${sc.score?sc.grade:'–'}</div><div class="tl">Diet Score</div></div>
+    </div>
+    <div class="dash-card"><div class="dch"><span>Weekly Activity</span><span>${daysActive}/7 days</span></div>
+      <div class="bars7">${last7.map(x=>`<div class="b"><i class="${x.n?'':'empty'}" style="height:${Math.round(x.n/maxN*100)}%"></i><span>${x.l}</span></div>`).join('')}</div></div>
+    ${spark}
     <div class="water-card"><div class="water-top"><div class="wt-l">💧 <b>${water}</b><span>/ ${WATER_GOAL} glasses (~3L)</span></div><div class="water-btns"><button id="wMinus">−</button><button class="add" id="wPlus">+</button></div></div><div class="water-bar"><i style="width:${wpct}%"></i></div></div>
     <div class="section-title">Today's Workout<button id="seeAll">All days →</button></div>
     <div class="exercise" id="todayWk" style="cursor:pointer"><div class="ex-head"><div class="ex-num" style="font-size:16px">${td.emoji}</div><div class="ex-name"><h3>${td.title}</h3><div class="sub">${schedIdx!=null?'📅 Scheduled today · ':''}${td.focus} · ${td.exercises.length} exercises</div></div></div></div>
     <button class="big-btn" id="goWk">🏋️ Start Workout</button>
-    <button class="ghost-btn" id="goDiet">🍽️ View Today's Diet</button>
-    <button class="ghost-btn" id="goCal">📅 Open Calendar</button>
+    <div class="grid2"><button class="ghost-btn" id="goDiet" style="margin-top:0">🍽️ Diet</button><button class="ghost-btn" id="goCal" style="margin-top:0">📅 Calendar</button></div>
     <div class="section-title">My Plans<button id="mgPlans">Manage →</button></div>
     ${plans.map(p=>{const pg=GOALS[p.goal];return `<div class="plan-card ${p.id===activePlanId?'active':''}" data-pid="${p.id}"><div class="pc-e">${p.emoji||pg.emoji}</div><div class="pc-t"><b>${p.name}</b><span>${pg.label} · ${EXP_LABEL[p.experience]} · ${p.days} day</span></div>${p.id===activePlanId?'<div class="pc-badge">Active</div>':''}</div>`;}).join('')}
     <button class="ghost-btn" id="addPlan">＋ Add a New Plan</button><div style="height:8px"></div>`;
@@ -45,6 +56,7 @@ function renderHome(){
   document.getElementById('seeAll').onclick=()=>setView('workout');
   document.getElementById('goDiet').onclick=()=>setView('diet');
   document.getElementById('goCal').onclick=()=>{calRef=new Date();setView('calendar');};
+  document.getElementById('tileDiet').onclick=()=>setView('diet');
   document.getElementById('mgPlans').onclick=()=>setView('plans');
   document.getElementById('addPlan').onclick=()=>setView('plans');
   document.getElementById('wPlus').onclick=()=>changeWater(1);
