@@ -195,3 +195,64 @@ const DEFAULT_VIDEOS={
   "Front Raise|Cable":"NdQE5Fhfqn4"
 };
 const YT_UPLOADS="UUerweoBkwQOb_zwx3NfUD1g"; // DeltaBolic uploads playlist
+
+/* ============================================================
+   FIXED PRESET PLAN — Abhinav Mahajan Advanced 6-Day PPL
+   Shown to every user by default. reps shown as the working scheme.
+   ============================================================ */
+const AMP=[
+  {title:"Push 1",focus:"Chest focus",emoji:"💪",exercises:[
+    {name:"Incline Press",sets:4,reps:"6-12",rest:120,cat:"chest",variants:V(["Dumbbell","incline dumbbell press form"],["Barbell","incline barbell bench press form"])},
+    {name:"Bench Press",sets:3,reps:"6",rest:120,cat:"chest",variants:V(["Barbell","barbell bench press form"],["Dumbbell","dumbbell bench press form"])},
+    {name:"Overhead Press",sets:3,reps:"8",rest:90,cat:"shoulders",variants:V(["Dumbbell","overhead dumbbell press form"],["Barbell","overhead barbell press form"])},
+    {name:"Cable Fly",sets:3,reps:"10",rest:60,cat:"chest",variants:V(["High-Low","high to low cable crossover form"],["Mid","cable chest fly form"])},
+    {name:"Lateral Raise",sets:3,reps:"12",rest:90,dropSet:true,cat:"shoulders",variants:V(["Dumbbell","dumbbell lateral raise form"],["Cable","cable lateral raise form"])},
+    {name:"Overhead Extension",sets:4,reps:"8-15",rest:90,cat:"triceps",variants:V(["Cable","overhead cable tricep extension form"],["Dumbbell","overhead dumbbell tricep extension form"])},
+    {name:"Tricep Pushdown",sets:3,reps:"12",rest:60,dropSet:true,cat:"triceps",variants:V(["Rope","rope tricep pushdown form"],["Bar","bar tricep pushdown form"])},
+    {name:"Cable Crunch",sets:4,reps:"12-15",rest:45,cat:"abs",variants:V(["Cable","cable crunch form"])}
+  ]},
+  {title:"Pull 1",focus:"Back & Biceps",emoji:"🔥",exercises:[
+    {name:"Lat Pulldown",sets:4,reps:"8-12",rest:120,cat:"back",variants:V(["Wide","wide grip lat pulldown form"],["Neutral","neutral grip lat pulldown form"])},
+    {name:"Seated Cable Row",sets:3,reps:"8",rest:90,cat:"back",variants:V(["Cable","seated cable row form"],["Chest-Supported","chest supported row form"])},
+    {name:"Good Morning",sets:3,reps:"15",rest:90,cat:"hamstrings",variants:V(["Barbell","barbell good morning form"])},
+    {name:"Incline Dumbbell Curl",sets:4,reps:"8-15",rest:60,cat:"biceps",variants:V(["Dumbbell","incline dumbbell curl form"])},
+    {name:"Preacher Curl",sets:2,reps:"12",rest:60,dropSet:true,cat:"biceps",variants:V(["Machine","preacher curl machine form"],["EZ Bar","ez bar preacher curl form"])},
+    {name:"Forearms (Superset)",sets:3,reps:"20",rest:60,cat:"biceps",variants:V(["Wrist Curl","barbell wrist curl forearm"],["Dead Hang","dead hang forearm exercise"])}
+  ]},
+  {title:"Legs 1",focus:"Quads & Glutes",emoji:"🦵",exercises:[
+    {name:"Squat",sets:4,reps:"6-12",rest:120,cat:"quads",variants:V(["Barbell","barbell squat form"],["Smith","smith machine squat form"])},
+    {name:"Hip Thrust",sets:3,reps:"10",rest:90,cat:"hamstrings",variants:V(["Barbell","barbell hip thrust form"])},
+    {name:"Leg Extension",sets:2,reps:"10",rest:60,dropSet:true,cat:"quads",variants:V(["Machine","leg extension form"])},
+    {name:"Glute Adduction",sets:2,reps:"15",rest:60,cat:"quads",variants:V(["Machine","hip adduction machine glutes"])},
+    {name:"Standing Calf Raise",sets:5,reps:"10-18",rest:45,cat:"calves",variants:V(["Machine","standing calf raise form"],["Smith","smith machine calf raise form"])},
+    {name:"Russian Twist",sets:3,reps:"12",rest:30,cat:"abs",variants:V(["Weighted","weighted russian twist form"])}
+  ]},
+  {title:"Push 2",focus:"Shoulder focus",emoji:"🏋️",exercises:[
+    {name:"Overhead Press",sets:4,reps:"6-12",rest:120,cat:"shoulders",variants:V(["Dumbbell","overhead dumbbell press form"],["Barbell","overhead barbell press form"])},
+    {name:"Seated Chest Press",sets:3,reps:"8",rest:120,cat:"chest",variants:V(["Cable","seated cable chest press form"],["Machine","seated machine chest press form"])},
+    {name:"Lateral Raise",sets:3,reps:"15",rest:90,dropSet:true,cat:"shoulders",variants:V(["Cable","cable lateral raise form"],["Dumbbell","dumbbell lateral raise form"])},
+    {name:"Incline Fly",sets:3,reps:"10",rest:60,cat:"chest",variants:V(["Cable","incline cable fly form"],["Dumbbell","incline dumbbell fly form"])},
+    {name:"Front Raise",sets:2,reps:"10",rest:60,cat:"shoulders",variants:V(["Dumbbell","front dumbbell raise form"],["Cable","cable front raise form"])},
+    {name:"Skullcrusher",sets:4,reps:"8-15",rest:90,cat:"triceps",variants:V(["EZ Bar","ez bar skullcrusher form"])},
+    {name:"Tricep Dips",sets:3,reps:"15",rest:60,dropSet:true,cat:"triceps",variants:V(["Bodyweight","tricep dips form"],["Bench","bench dips form"])},
+    {name:"Hanging Leg Raise",sets:4,reps:"12-15",rest:45,cat:"abs",variants:V(["Bodyweight","hanging leg raise form"])}
+  ]},
+  {title:"Pull 2",focus:"Back & Biceps",emoji:"🎯",exercises:[
+    {name:"Barbell Row",sets:4,reps:"8-12",rest:120,cat:"back",variants:V(["T-Bar","t-bar row form"],["Barbell","barbell bent over row form"])},
+    {name:"Pull-ups",sets:3,reps:"6-8",rest:90,cat:"back",variants:V(["Bodyweight","pull ups form"],["Assisted","assisted pull up machine form"])},
+    {name:"Rear Delt Fly",sets:3,reps:"15",rest:60,dropSet:true,cat:"shoulders",variants:V(["Pec Deck","reverse pec deck fly form"],["Face Pull","face pulls form"])},
+    {name:"Hammer Curl",sets:4,reps:"8-15",rest:60,cat:"biceps",variants:V(["Dumbbell","hammer curl form"],["Rope","rope hammer curl form"])},
+    {name:"Cable Curl",sets:2,reps:"12",rest:60,dropSet:true,cat:"biceps",variants:V(["Bayesian","bayesian cable curl form"],["Standing","standing cable curl form"])},
+    {name:"Forearms (Superset)",sets:3,reps:"20",rest:60,cat:"biceps",variants:V(["Reverse Wrist Curl","reverse wrist curl forearm"],["Farmer Walk","dumbbell farmer walk"])}
+  ]},
+  {title:"Legs 2",focus:"Hamstrings & Glutes",emoji:"🏃",exercises:[
+    {name:"Romanian Deadlift",sets:4,reps:"6-12",rest:120,cat:"hamstrings",variants:V(["Barbell","romanian deadlift form"],["Dumbbell","dumbbell rdl form"])},
+    {name:"Walking Lunges",sets:3,reps:"10",rest:90,cat:"quads",variants:V(["Dumbbell","walking dumbbell lunges form"],["Barbell","walking barbell lunges form"])},
+    {name:"Lying Leg Curl",sets:2,reps:"10",rest:60,dropSet:true,cat:"hamstrings",variants:V(["Machine","lying leg curl form"])},
+    {name:"Glute Kickback",sets:2,reps:"15",rest:60,cat:"hamstrings",variants:V(["Cable","cable glute kickback form"])},
+    {name:"Seated Calf Raise",sets:5,reps:"12-20",rest:45,cat:"calves",variants:V(["Machine","seated calf raise form"])},
+    {name:"Plank",sets:3,reps:"45s",rest:30,cat:"abs",variants:V(["Hold","plank hold form"])}
+  ]}
+];
+const FIXED_PLANS={'am-ppl':AMP};
+const AM_META={id:'am-ppl',name:'AM Advanced PPL',emoji:'🔥',fixed:true,goal:'muscle',experience:'advanced',days:6};

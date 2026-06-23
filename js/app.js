@@ -68,7 +68,7 @@ function finishWizard(){
   profile={name:wz.name,phone:wz.phone,gender:wz.gender,age:wz.age,height:wz.height,weight:wz.weight,activity:wz.activity};
   LS.set(uk('profile'),profile);
   const plan={id:newId(),name:GOALS[wz.goal].label+" Plan",goal:wz.goal,experience:wz.experience,days:wz.days};
-  plans=[plan];activePlanId=plan.id;LS.set(uk('plans'),plans);LS.set(uk('active'),activePlanId);
+  plans=[Object.assign({},AM_META),plan];activePlanId=AM_META.id;LS.set(uk('plans'),plans);LS.set(uk('active'),activePlanId);
   document.getElementById('wizard').classList.remove('show');rebuildPLAN();currentView='home';currentDay=0;bootUI();showToast('Plan ready 💪');
 }
 

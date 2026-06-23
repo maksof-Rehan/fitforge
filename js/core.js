@@ -28,9 +28,10 @@ function timeAgo(ts){if(!ts)return 'never';const s=Math.floor((Date.now()-ts)/10
 async function pullCloud(uid){try{const snap=await db.collection('users').doc(uid).get();if(snap.exists){const blob=(snap.data()||{}).blob||{};Object.keys(blob).forEach(sub=>{try{localStorage.setItem('ff:'+uid+':'+sub,blob[sub]);}catch(e){}});}}catch(e){console.warn('sync down',e&&e.code);}}
 
 /* ----- USER / PLANS ----- */
-function loadUser(){profile=LS.get(uk('profile'),null);plans=LS.get(uk('plans'),[]);activePlanId=LS.get(uk('active'),plans[0]?plans[0].id:null);}
+function loadUser(){profile=LS.get(uk('profile'),null);plans=LS.get(uk('plans'),[]);ensureDefaultPlan();activePlanId=LS.get(uk('active'),plans[0]?plans[0].id:null);}
+function ensureDefaultPlan(){if(typeof AM_META==='undefined')return;if(!plans.some(p=>p.id==='am-ppl')){plans.unshift(Object.assign({},AM_META));LS.set(uk('plans'),plans);}}
 function activePlan(){return plans.find(p=>p.id===activePlanId)||plans[0];}
-function rebuildPLAN(){const ap=activePlan();PLAN=ap?buildPlan(ap):[];}
+function rebuildPLAN(){const ap=activePlan();PLAN=ap?(ap.fixed&&typeof FIXED_PLANS!=='undefined'&&FIXED_PLANS[ap.id]?FIXED_PLANS[ap.id]:buildPlan(ap)):[];}
 const progressKey=d=>uk(`prog-${activePlanId}-${d}`);
 function loadProgress(d){return LS.get(progressKey(d),{});}
 function saveProgress(d,data){LS.set(progressKey(d),data);}
