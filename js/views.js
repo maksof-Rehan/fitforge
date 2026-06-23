@@ -163,7 +163,9 @@ function renderSuggested(c){
   document.getElementById('toMy').onclick=()=>{dietTab='builder';renderDiet();};
 }
 function renderBuilder(c){
-  const F=allFoods(),diet=loadDiet(),all=dietItems(diet),tot=sumMacros(all);
+  const F=allFoods();let diet=loadDiet();
+  if(!LS.get(uk('dietInit'))&&!dietItems(diet).length){diet=generateDefaultDiet(c);saveDiet(diet);LS.set(uk('dietInit'),1);}
+  const all=dietItems(diet),tot=sumMacros(all);
   logCalorieDay(tot.cal,tot.p);
   const sc=dietScore(tot,c),circ=2*Math.PI*42,off=circ*(1-sc.score/100);
   const bar=(val,target,cls)=>{const pct=target>0?Math.min(100,Math.round(val/target*100)):0,over=val>target*1.05;return `<div class="tline"><span>${cls.toUpperCase()}</span><span>${Math.round(val)} / ${target}${cls==='cal'?' kcal':'g'}</span></div><div class="tbar ${cls} ${over?'over':''}"><i style="width:${pct}%"></i></div>`;};
@@ -172,7 +174,9 @@ function renderBuilder(c){
       <svg viewBox="0 0 100 100" class="ring"><circle cx="50" cy="50" r="42" class="ring-bg"/><circle cx="50" cy="50" r="42" class="ring-fg" style="stroke:${sc.color};stroke-dasharray:${circ.toFixed(1)};stroke-dashoffset:${off.toFixed(1)}"/><text x="50" y="48" class="ring-num">${sc.score}</text><text x="50" y="64" class="ring-sub">/ 100</text></svg>
       <div class="score-side"><div class="score-grade" style="color:${sc.color}">${sc.grade} · ${sc.label}</div><div class="score-tip">${sc.tips[0]||''}</div></div>
     </div>
-    <div class="target-card">${bar(tot.cal,c.cals,'cal')}${bar(tot.p,c.protein,'p')}${bar(tot.c,c.carbs,'c')}${bar(tot.f,c.fat,'f')}</div>`;
+    <div class="target-card">${bar(tot.cal,c.cals,'cal')}${bar(tot.p,c.protein,'p')}${bar(tot.c,c.carbs,'c')}${bar(tot.f,c.fat,'f')}</div>
+    <div class="info-banner">✨ <b>Your recommended plan</b> — tuned to your body. Add/remove foods freely, or hit <b>Reset</b> to bring it back.</div>
+    <div class="section-title" style="margin-top:0">My Meals</div>`;
   MEALS.forEach(m=>{
     const items=diet[m.k]||[],mt=sumMacros(items);
     html+=`<div class="exercise"><div class="ex-head"><div class="ex-num" style="font-size:15px">${m.e}</div><div class="ex-name"><h3>${m.t}</h3><div class="sub">${Math.round(mt.cal)} kcal · ${Math.round(mt.p)}P / ${Math.round(mt.c)}C / ${Math.round(mt.f)}F</div></div></div>
@@ -182,13 +186,16 @@ function renderBuilder(c){
       </div></div>`;
   });
   html+=`<div class="info-banner">💡 ${sc.tips.slice(0,3).map(t=>'• '+t).join('<br>')}</div>
-    <div class="grid2" style="margin-top:4px"><button class="ghost-btn" id="addFood" style="margin-top:0">＋ Custom Food</button><button class="ghost-btn danger-btn" id="clearDiet" style="margin-top:0">🗑️ Clear Day</button></div>
+    <button class="big-btn sec" id="resetDiet" style="margin-top:4px">🔄 Reset to Recommended Plan</button>
+    <button class="ghost-btn" id="addFood">＋ Add Custom Food</button>
+    <button class="ghost-btn danger-btn" id="clearDiet">🗑️ Clear All Meals</button>
     ${calorieHistoryChart()}`;
   document.getElementById('dietBody').innerHTML=html;
   document.querySelectorAll('.mf-add').forEach(b=>b.onclick=()=>{const mk=b.dataset.meal,sel=document.querySelector('.mf-sel[data-meal="'+mk+'"]'),qt=document.querySelector('.mf-qty[data-meal="'+mk+'"]'),f=+sel.value,q=+qt.value||1,d=loadDiet();d[mk]=d[mk]||[];d[mk].push({f,q});saveDiet(d);renderBuilder(c);});
   document.querySelectorAll('.fr-del').forEach(b=>b.onclick=()=>{const d=loadDiet();(d[b.dataset.meal]||[]).splice(+b.dataset.i,1);saveDiet(d);renderBuilder(c);});
+  document.getElementById('resetDiet').onclick=()=>{if(confirm('Reset to the recommended plan? Your current foods will be replaced.')){saveDiet(generateDefaultDiet(c));LS.set(uk('dietInit'),1);renderBuilder(c);showToast('Reset to recommended ✓');}};
   document.getElementById('addFood').onclick=openAddFood;
-  document.getElementById('clearDiet').onclick=()=>{if(confirm('Clear all meals for the day?')){saveDiet({});renderBuilder(c);}};
+  document.getElementById('clearDiet').onclick=()=>{if(confirm('Clear all meals?')){saveDiet({});LS.set(uk('dietInit'),1);renderBuilder(c);}};
 }
 function calorieHistoryChart(){
   const all=LS.get(uk('calhist'),{}),keys=Object.keys(all).sort().slice(-7);

@@ -46,6 +46,15 @@ const MEALS=[{k:'breakfast',t:'Breakfast',e:'🍳'},{k:'pre',t:'Pre-Workout',e:'
 function loadDiet(){let d=LS.get(uk('diet'),null);if(Array.isArray(d)){d={breakfast:d};LS.set(uk('diet'),d);}if(!d||typeof d!=='object')d={};return d;}
 function saveDiet(d){LS.set(uk('diet'),d);}
 function dietItems(d){return MEALS.reduce((a,m)=>a.concat(d[m.k]||[]),[]);}
+/* Build a research-based default diet scaled to the user's protein target.
+   f = index into FOODS: 0 egg, 2 roti, 4 chicken, 11 rice, 17 whey, 19 banana, 21 oats, 24 salad, 25 veg */
+function generateDefaultDiet(c){
+  const P=c.protein||140;
+  const eggs=Math.min(6,Math.max(2,Math.round(P*0.22/6)));
+  const chL=Math.min(3,Math.max(1,Math.round(P*0.25/31)));
+  const chD=Math.min(2,Math.max(1,Math.round(P*0.20/31)));
+  return {breakfast:[{f:0,q:eggs},{f:2,q:2},{f:21,q:1}],pre:[{f:19,q:1}],post:[{f:17,q:1},{f:19,q:1}],lunch:[{f:4,q:chL},{f:11,q:1},{f:24,q:1}],dinner:[{f:4,q:chD},{f:2,q:2},{f:25,q:1}]};
+}
 function dietScore(t,c){
   const pr=c.protein>0?t.p/c.protein:0;
   let pScore=pr>=0.9&&pr<=1.2?40:pr>=0.75?30:pr>=0.5?18:pr>0?8:0;
