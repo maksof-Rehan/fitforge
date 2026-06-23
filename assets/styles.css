@@ -301,4 +301,15 @@ body::before{content:'';position:fixed;inset:-25%;z-index:-1;background:radial-g
 .auth-hero .logo{animation:float 3.5s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .big-btn:active,.ghost-btn:active{transform:scale(.97)}
+/* DIET SCORE RING */
+.score-card{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.score-card .ring{width:96px;height:96px;flex:0 0 96px}
+.ring-bg{fill:none;stroke:var(--bg-2);stroke-width:8}
+.ring-fg{fill:none;stroke-width:8;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .7s cubic-bezier(.2,.8,.3,1)}
+.ring-num{font-size:28px;font-weight:900;fill:var(--text);text-anchor:middle;dominant-baseline:middle}
+.ring-sub{font-size:9px;fill:var(--muted);text-anchor:middle}
+.score-side{flex:1;min-width:0}
+.score-grade{font-size:20px;font-weight:900}
+.score-tip{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.45}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}

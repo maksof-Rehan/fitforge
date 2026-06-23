@@ -151,25 +151,32 @@ function renderSuggested(c){
   document.getElementById('toMy').onclick=()=>{dietTab='builder';renderDiet();};
 }
 function renderBuilder(c){
-  const F=allFoods(),items=LS.get(uk('diet'),[]),tot=sumMacros(items),meals=LS.get(uk('meals'),[]);
+  const F=allFoods(),diet=loadDiet(),all=dietItems(diet),tot=sumMacros(all);
   logCalorieDay(tot.cal,tot.p);
+  const sc=dietScore(tot,c),circ=2*Math.PI*42,off=circ*(1-sc.score/100);
   const bar=(val,target,cls)=>{const pct=target>0?Math.min(100,Math.round(val/target*100)):0,over=val>target*1.05;return `<div class="tline"><span>${cls.toUpperCase()}</span><span>${Math.round(val)} / ${target}${cls==='cal'?' kcal':'g'}</span></div><div class="tbar ${cls} ${over?'over':''}"><i style="width:${pct}%"></i></div>`;};
-  document.getElementById('dietBody').innerHTML=`
-    <div class="target-card">${bar(tot.cal,c.cals,'cal')}${bar(tot.p,c.protein,'p')}${bar(tot.c,c.carbs,'c')}${bar(tot.f,c.fat,'f')}</div>
-    ${meals.length?`<div class="section-title" style="margin-top:0">Saved Meals (tap to add)</div><div class="chips">${meals.map((m,i)=>`<span class="mchip" data-meal="${i}">${m.name}<span class="mc-x" data-delmeal="${i}">×</span></span>`).join('')}</div>`:''}
-    <div class="food-add"><select id="foodSel">${F.map((f,i)=>`<option value="${i}">${f.n} (${f.u}) · ${f.p}g P</option>`).join('')}</select><input id="foodQty" type="number" inputmode="decimal" value="1" min="0.5" step="0.5" /><button id="foodAdd">+</button></div>
-    <div id="foodList"></div>
-    <div class="grid2" style="margin-top:4px"><button class="ghost-btn" id="addFood" style="margin-top:0">＋ Custom Food</button><button class="ghost-btn" id="saveMeal" style="margin-top:0">💾 Save as Meal</button></div>
-    ${items.length?`<button class="ghost-btn danger-btn" id="clearDiet">🗑️ Clear all</button>`:`<div class="info-banner">Add food above — the app sums calories + protein vs your target. Save combos as meals to reuse. 💪</div>`}
+  let html=`
+    <div class="score-card">
+      <svg viewBox="0 0 100 100" class="ring"><circle cx="50" cy="50" r="42" class="ring-bg"/><circle cx="50" cy="50" r="42" class="ring-fg" style="stroke:${sc.color};stroke-dasharray:${circ.toFixed(1)};stroke-dashoffset:${off.toFixed(1)}"/><text x="50" y="48" class="ring-num">${sc.score}</text><text x="50" y="64" class="ring-sub">/ 100</text></svg>
+      <div class="score-side"><div class="score-grade" style="color:${sc.color}">${sc.grade} · ${sc.label}</div><div class="score-tip">${sc.tips[0]||''}</div></div>
+    </div>
+    <div class="target-card">${bar(tot.cal,c.cals,'cal')}${bar(tot.p,c.protein,'p')}${bar(tot.c,c.carbs,'c')}${bar(tot.f,c.fat,'f')}</div>`;
+  MEALS.forEach(m=>{
+    const items=diet[m.k]||[],mt=sumMacros(items);
+    html+=`<div class="exercise"><div class="ex-head"><div class="ex-num" style="font-size:15px">${m.e}</div><div class="ex-name"><h3>${m.t}</h3><div class="sub">${Math.round(mt.cal)} kcal · ${Math.round(mt.p)}P / ${Math.round(mt.c)}C / ${Math.round(mt.f)}F</div></div></div>
+      <div class="diet-items">
+        ${items.map((it,i)=>{const f=F[it.f];if(!f)return '';return `<div class="food-row" style="margin:0 0 8px"><div class="fr-name">${f.n}<span>${it.q} × ${f.u} · ${Math.round(f.cal*it.q)} kcal · ${Math.round(f.p*it.q)}P</span></div><div class="fr-p">${Math.round(f.p*it.q)}g</div><button class="fr-del" data-meal="${m.k}" data-i="${i}">×</button></div>`;}).join('')||'<div style="color:var(--muted);font-size:12px;padding:0 0 8px">No items yet — add your '+m.t.toLowerCase()+' below</div>'}
+        <div class="food-add" style="margin:0"><select class="mf-sel" data-meal="${m.k}">${F.map((f,i)=>`<option value="${i}">${f.n} (${f.u}) · ${f.p}g P</option>`).join('')}</select><input class="mf-qty" data-meal="${m.k}" type="number" inputmode="decimal" value="1" min="0.5" step="0.5"/><button class="mf-add" data-meal="${m.k}">+</button></div>
+      </div></div>`;
+  });
+  html+=`<div class="info-banner">💡 ${sc.tips.slice(0,3).map(t=>'• '+t).join('<br>')}</div>
+    <div class="grid2" style="margin-top:4px"><button class="ghost-btn" id="addFood" style="margin-top:0">＋ Custom Food</button><button class="ghost-btn danger-btn" id="clearDiet" style="margin-top:0">🗑️ Clear Day</button></div>
     ${calorieHistoryChart()}`;
-  document.getElementById('foodList').innerHTML=items.map((it,i)=>{const f=F[it.f];if(!f)return '';return `<div class="food-row"><div class="fr-name">${f.n}<span>${it.q} × ${f.u} · ${Math.round(f.cal*it.q)} kcal · ${Math.round(f.p*it.q)}P / ${Math.round(f.c*it.q)}C / ${Math.round(f.f*it.q)}F</span></div><div class="fr-p">${Math.round(f.p*it.q)}g P</div><button class="fr-del" data-i="${i}">×</button></div>`;}).join('');
-  document.getElementById('foodAdd').onclick=()=>{const f=+document.getElementById('foodSel').value,q=+document.getElementById('foodQty').value||1,arr=LS.get(uk('diet'),[]);arr.push({f,q});LS.set(uk('diet'),arr);renderBuilder(c);};
-  document.querySelectorAll('#foodList .fr-del').forEach(b=>b.onclick=()=>{const arr=LS.get(uk('diet'),[]);arr.splice(+b.dataset.i,1);LS.set(uk('diet'),arr);renderBuilder(c);});
+  document.getElementById('dietBody').innerHTML=html;
+  document.querySelectorAll('.mf-add').forEach(b=>b.onclick=()=>{const mk=b.dataset.meal,sel=document.querySelector('.mf-sel[data-meal="'+mk+'"]'),qt=document.querySelector('.mf-qty[data-meal="'+mk+'"]'),f=+sel.value,q=+qt.value||1,d=loadDiet();d[mk]=d[mk]||[];d[mk].push({f,q});saveDiet(d);renderBuilder(c);});
+  document.querySelectorAll('.fr-del').forEach(b=>b.onclick=()=>{const d=loadDiet();(d[b.dataset.meal]||[]).splice(+b.dataset.i,1);saveDiet(d);renderBuilder(c);});
   document.getElementById('addFood').onclick=openAddFood;
-  document.getElementById('saveMeal').onclick=()=>{if(!items.length){showToast('Add foods first');return;}const name=(prompt('Meal name (e.g. My Breakfast):')||'').trim();if(!name)return;const arr=LS.get(uk('meals'),[]);arr.push({name,items:items.slice()});LS.set(uk('meals'),arr);renderBuilder(c);showToast('Meal saved');};
-  document.querySelectorAll('.mchip[data-meal]').forEach(ch=>ch.onclick=e=>{if(e.target.dataset.delmeal!=null)return;const m=meals[+ch.dataset.meal],arr=LS.get(uk('diet'),[]);m.items.forEach(it=>arr.push({f:it.f,q:it.q}));LS.set(uk('diet'),arr);renderBuilder(c);showToast('Meal added');});
-  document.querySelectorAll('.mc-x[data-delmeal]').forEach(x=>x.onclick=e=>{e.stopPropagation();const arr=LS.get(uk('meals'),[]);arr.splice(+x.dataset.delmeal,1);LS.set(uk('meals'),arr);renderBuilder(c);});
-  const cd=document.getElementById('clearDiet');if(cd)cd.onclick=()=>{if(confirm('Clear your diet plan?')){LS.set(uk('diet'),[]);renderBuilder(c);}};
+  document.getElementById('clearDiet').onclick=()=>{if(confirm('Clear all meals for the day?')){saveDiet({});renderBuilder(c);}};
 }
 function calorieHistoryChart(){
   const all=LS.get(uk('calhist'),{}),keys=Object.keys(all).sort().slice(-7);

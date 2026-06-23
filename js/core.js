@@ -40,6 +40,38 @@ function newId(){return 'p'+Date.now()+Math.floor(Math.random()*1000);}
 /* ----- FOODS (base + custom) ----- */
 function allFoods(){return FOODS.concat(LS.get(uk('foods'),[]));}
 
+/* ----- MEAL-WISE DIET + SCORING ----- */
+const MEALS=[{k:'breakfast',t:'Breakfast',e:'🍳'},{k:'pre',t:'Pre-Workout',e:'⚡'},{k:'post',t:'Post-Workout',e:'🥤'},{k:'lunch',t:'Lunch',e:'🍗'},{k:'dinner',t:'Dinner',e:'🌙'},{k:'snack',t:'Snacks',e:'🥜'}];
+function loadDiet(){let d=LS.get(uk('diet'),null);if(Array.isArray(d)){d={breakfast:d};LS.set(uk('diet'),d);}if(!d||typeof d!=='object')d={};return d;}
+function saveDiet(d){LS.set(uk('diet'),d);}
+function dietItems(d){return MEALS.reduce((a,m)=>a.concat(d[m.k]||[]),[]);}
+function dietScore(t,c){
+  const pr=c.protein>0?t.p/c.protein:0;
+  let pScore=pr>=0.9&&pr<=1.2?40:pr>=0.75?30:pr>=0.5?18:pr>0?8:0;
+  const dev=c.cals>0?Math.abs(t.cal/c.cals-1):1;
+  let cScore=t.cal===0?0:dev<=0.1?35:dev<=0.2?25:dev<=0.35?15:6;
+  let bScore=0;if(t.c>=c.carbs*0.5)bScore+=9;if(t.f>=c.fat*0.45)bScore+=9;if(t.cal>0)bScore+=7;bScore=Math.min(25,bScore);
+  let score=t.cal===0?0:Math.round(pScore+cScore+bScore);
+  let grade,label,color;
+  if(score>=85){grade='A';label='Excellent';color='var(--ok)';}
+  else if(score>=70){grade='B';label='Good';color='#7ed957';}
+  else if(score>=55){grade='C';label='Average';color='var(--warn)';}
+  else if(score>0){grade='D';label='Needs Work';color='var(--drop)';}
+  else{grade='–';label='No food logged';color='var(--muted)';}
+  const tips=[];
+  if(t.cal===0)tips.push('Add your meals below to get a diet score.');
+  else{
+    if(pr<0.9)tips.push(`Add ~${Math.max(5,Math.round(c.protein-t.p))}g more protein.`);
+    else if(pr>1.25)tips.push('Protein is very high — you can ease off slightly.');
+    if(t.cal>c.cals*1.15)tips.push(`You're ~${Math.round(t.cal-c.cals)} kcal over target.`);
+    else if(t.cal<c.cals*0.8)tips.push(`You're ~${Math.round(c.cals-t.cal)} kcal under target.`);
+    if(t.c<c.carbs*0.5)tips.push('Carbs are low — add some around your workout.');
+    if(t.f<c.fat*0.45)tips.push('Add a healthy fat (nuts / olive oil).');
+    if(!tips.length)tips.push('Great balance — keep it up! 💪');
+  }
+  return{score,grade,label,color,tips};
+}
+
 /* ----- GENERATORS ----- */
 function pickEx(cat,n,offset){const pool=EX_POOL[cat],r=[];for(let i=0;i<n;i++)r.push(pool[(offset+i)%pool.length]);return r;}
 function buildPlan(plan){
