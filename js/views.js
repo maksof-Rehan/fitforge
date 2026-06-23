@@ -159,7 +159,9 @@ function renderSuggested(c){
     <div class="info-banner">📚 <b>Research-based plan · ${goal}</b><br>Daily target: <b>${C} kcal</b> · <b>${P}g protein</b> · ${Carb}g carbs · ${Fat}g fat. Spread protein across meals (~${Math.round(P/5)}g each), keep most carbs around training, and eat vegetables/fiber at every meal.</div>
     ${meals.map(m=>`<div class="exercise"><div class="ex-head"><div class="ex-num" style="font-size:15px">${m.e}</div><div class="ex-name"><h3>${m.t}</h3><div class="sub">Aim ~${Math.round(C*m.cf)} kcal · ~${Math.round(P*m.pf)}g protein</div></div></div><div class="diet-items"><div class="diet-item">• ${m.ex}</div></div></div>`).join('')}
     <div class="info-banner">🔬 <b>Why this works:</b> protein every 3–4h maximises muscle protein synthesis · carbs around training fuel performance & recovery · fibre + 3–4L water improve fullness and digestion · keep dietary fat ~0.8g/kg · ${goal==='Fat Loss'||goal==='Recomp'?'stay in a small calorie deficit and protein high to preserve muscle.':goal==='Muscle Gain'?'eat a slight surplus with high protein to build muscle.':'match calories to maintenance.'}</div>
-    <button class="ghost-btn" id="toMy">🛠️ Build my own & track exact macros</button>`;
+    <button class="big-btn" id="copyPlan">📋 Copy this Plan to My Plan</button>
+    <button class="ghost-btn" id="toMy">🛠️ Build my own from scratch</button>`;
+  document.getElementById('copyPlan').onclick=()=>{saveDiet(generateDefaultDiet(c));LS.set(uk('dietInit'),1);dietTab='builder';renderDiet();showToast('Copied to My Plan — edit freely ✓');};
   document.getElementById('toMy').onclick=()=>{dietTab='builder';renderDiet();};
 }
 function renderBuilder(c){
