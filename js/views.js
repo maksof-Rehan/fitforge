@@ -138,6 +138,30 @@ function suggestedMeals(){return [
   {t:"Dinner",e:"🌙",items:[{f:6,q:1.5},{f:2,q:2},{f:24,q:1}],extra:"low oil"},
   {t:"Before Bed",e:"🥛",items:[{f:15,q:1}],extra:""}
 ];}
+function planToText(d,c,title){
+  const F=allFoods(),tot=sumMacros(dietItems(d));
+  let t=title+'\n';
+  MEALS.forEach(m=>{const items=d[m.k]||[];if(!items.length)return;t+=`\n${m.e} ${m.t}:\n`+items.map(it=>{const f=F[it.f];return f?`• ${it.q!==1?it.q+'× ':''}${f.n}`:'';}).join('\n')+'\n';});
+  t+=`\n📊 ${Math.round(tot.cal)} kcal · ${Math.round(tot.p)}g protein · ${Math.round(tot.c)}g carbs · ${Math.round(tot.f)}g fat`;
+  t+=`\n🎯 Target: ${c.cals} kcal · ${c.protein}g protein`;
+  t+=`\n\nMade with FitForge 💪\nhttps://maksof-rehan.github.io/fitforge/`;
+  return t;
+}
+function shareWA(text){
+  if(navigator.share){navigator.share({text}).catch(()=>{try{window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}catch(e){}});}
+  else{window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+}
+function shareApp(){
+  const t=`🔥 *FitForge* — Your Personal Trainer App\n\n`+
+    `💪 Custom workout plans (Push/Pull/Legs & more)\n`+
+    `🎬 In-app exercise demo videos\n`+
+    `🍽️ Smart diet plans + calorie & macro tracker with a diet score\n`+
+    `📊 Progress dashboard, weight & personal-record tracking\n`+
+    `📅 Calendar, streaks & achievements\n`+
+    `☁️ 100% free — your data syncs across devices\n\n`+
+    `Try it free 👇\nhttps://maksof-rehan.github.io/fitforge/`;
+  shareWA(t);
+}
 function renderDiet(){
   const ap=activePlan(),c=calc(profile,ap.goal);
   setHeader('Diet Plan',`${c.cals} kcal · ${c.protein}g protein`);
@@ -160,8 +184,10 @@ function renderSuggested(c){
     ${meals.map(m=>`<div class="exercise"><div class="ex-head"><div class="ex-num" style="font-size:15px">${m.e}</div><div class="ex-name"><h3>${m.t}</h3><div class="sub">Aim ~${Math.round(C*m.cf)} kcal · ~${Math.round(P*m.pf)}g protein</div></div></div><div class="diet-items"><div class="diet-item">• ${m.ex}</div></div></div>`).join('')}
     <div class="info-banner">🔬 <b>Why this works:</b> protein every 3–4h maximises muscle protein synthesis · carbs around training fuel performance & recovery · fibre + 3–4L water improve fullness and digestion · keep dietary fat ~0.8g/kg · ${goal==='Fat Loss'||goal==='Recomp'?'stay in a small calorie deficit and protein high to preserve muscle.':goal==='Muscle Gain'?'eat a slight surplus with high protein to build muscle.':'match calories to maintenance.'}</div>
     <button class="big-btn" id="copyPlan">📋 Copy this Plan to My Plan</button>
+    <button class="ghost-btn" id="shareSug" style="border-color:rgba(47,209,120,.4);color:var(--ok)">📲 Share on WhatsApp</button>
     <button class="ghost-btn" id="toMy">🛠️ Build my own from scratch</button>`;
   document.getElementById('copyPlan').onclick=()=>{saveDiet(generateDefaultDiet(c));LS.set(uk('dietInit'),1);dietTab='builder';renderDiet();showToast('Copied to My Plan — edit freely ✓');};
+  document.getElementById('shareSug').onclick=()=>shareWA(planToText(generateDefaultDiet(c),c,'🍽️ Recommended Diet Plan'));
   document.getElementById('toMy').onclick=()=>{dietTab='builder';renderDiet();};
 }
 function renderBuilder(c){
@@ -189,6 +215,7 @@ function renderBuilder(c){
   });
   html+=`<div class="info-banner">💡 ${sc.tips.slice(0,3).map(t=>'• '+t).join('<br>')}</div>
     <button class="big-btn sec" id="resetDiet" style="margin-top:4px">🔄 Reset to Recommended Plan</button>
+    <button class="ghost-btn" id="shareMy" style="border-color:rgba(47,209,120,.4);color:var(--ok)">📲 Share My Plan on WhatsApp</button>
     <button class="ghost-btn" id="addFood">＋ Add Custom Food</button>
     <button class="ghost-btn danger-btn" id="clearDiet">🗑️ Clear All Meals</button>
     ${calorieHistoryChart()}`;
@@ -196,6 +223,7 @@ function renderBuilder(c){
   document.querySelectorAll('.mf-add').forEach(b=>b.onclick=()=>{const mk=b.dataset.meal,sel=document.querySelector('.mf-sel[data-meal="'+mk+'"]'),qt=document.querySelector('.mf-qty[data-meal="'+mk+'"]'),f=+sel.value,q=+qt.value||1,d=loadDiet();d[mk]=d[mk]||[];d[mk].push({f,q});saveDiet(d);renderBuilder(c);});
   document.querySelectorAll('.fr-del').forEach(b=>b.onclick=()=>{const d=loadDiet();(d[b.dataset.meal]||[]).splice(+b.dataset.i,1);saveDiet(d);renderBuilder(c);});
   document.getElementById('resetDiet').onclick=()=>{if(confirm('Reset to the recommended plan? Your current foods will be replaced.')){saveDiet(generateDefaultDiet(c));LS.set(uk('dietInit'),1);renderBuilder(c);showToast('Reset to recommended ✓');}};
+  document.getElementById('shareMy').onclick=()=>shareWA(planToText(loadDiet(),c,'🍽️ My Diet Plan'));
   document.getElementById('addFood').onclick=openAddFood;
   document.getElementById('clearDiet').onclick=()=>{if(confirm('Clear all meals?')){saveDiet({});LS.set(uk('dietInit'),1);renderBuilder(c);}};
 }
@@ -257,6 +285,7 @@ function renderProfile(){
     <button class="big-btn" id="editStats">✏️ Edit Body Stats</button>
     ${isAdmin()?'<button class="ghost-btn" id="adminBtn" style="border-color:rgba(168,85,247,.45);color:#c79bff">🛡️ Admin Panel</button>':''}
     <button class="ghost-btn" id="shareBtn">📤 Share My Progress</button>
+    <button class="ghost-btn" id="shareAppBtn" style="border-color:rgba(47,209,120,.4);color:var(--ok)">📲 Share This App</button>
     <div class="form-card" style="margin-top:10px"><div class="field" style="margin:0"><label>Theme</label><div class="opt-row">
       <button class="opt ${th==='dark'?'sel':''}" data-th="dark">🌙 Dark</button>
       <button class="opt ${th==='light'?'sel':''}" data-th="light">☀️ Light</button>
@@ -270,6 +299,7 @@ function renderProfile(){
   document.getElementById('editStats').onclick=editStats;
   const ab=document.getElementById('adminBtn');if(ab)ab.onclick=()=>setView('admin');
   document.getElementById('shareBtn').onclick=shareProgress;
+  document.getElementById('shareAppBtn').onclick=shareApp;
   document.querySelectorAll('#app .opt[data-th]').forEach(b=>b.onclick=()=>{setTheme(b.dataset.th);renderProfile();});
   document.getElementById('goPlans').onclick=()=>setView('plans');
   document.getElementById('resetDay').onclick=()=>{if(confirm("Reset today's workout?")){LS.del(progressKey(currentDay));showToast('Reset');}};
