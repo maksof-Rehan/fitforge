@@ -4,6 +4,7 @@
 function setHeader(t,s){document.getElementById('hTitle').textContent=t;document.getElementById('hSub').textContent=s;}
 function setView(v){currentView=v;if(v!=='workout')currentDay=0;try{history.pushState({view:v},'');}catch(e){}renderApp();window.scrollTo({top:0});}
 function renderApp(){
+  document.body.style.overflow='';
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===currentView));
   document.getElementById('tabs').style.display='none';document.getElementById('progressWrap').style.display='none';
   document.getElementById('timerFab').classList.remove('show');document.getElementById('timerPanel').classList.remove('open');

@@ -174,14 +174,15 @@ function openVideo(ex,variant){
   document.getElementById('vidNAyt').href=searchUrl;
   const na=document.getElementById('vidNA'),pl=document.getElementById('ytplayer');
   vidModal.classList.add('open');document.body.style.overflow='hidden';
+  try{history.pushState({ov:'vid'},'');}catch(_){}
   document.getElementById('vidHint').textContent=saved?'Demo playing':'Demo not added yet';
   if(saved){na.style.display='none';pl.style.display='block';ensurePlayer(()=>{try{ytPlayer.loadVideoById(saved);}catch(_){}});}
   else{na.style.display='flex';pl.style.display='none';try{if(ytPlayer)ytPlayer.stopVideo();}catch(_){}}
 }
 function closeVideo(){vidModal.classList.remove('open');document.body.style.overflow='';try{if(ytPlayer)ytPlayer.pauseVideo();}catch(_){}}
-document.getElementById('vidClose').onclick=closeVideo;
-vidModal.addEventListener('click',e=>{if(e.target===vidModal)closeVideo();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(vidModal.classList.contains('open'))closeVideo();if(modal.classList.contains('open'))closeModal();}});
+document.getElementById('vidClose').onclick=()=>history.back();
+vidModal.addEventListener('click',e=>{if(e.target===vidModal)history.back();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(vidModal.classList.contains('open'))history.back();else if(modal.classList.contains('open'))closeModal();}});
 
 /* ===== SESSION STOPWATCH ===== */
 let sessStart=0,sessInterval=null;
@@ -215,7 +216,7 @@ function bootUI(){document.getElementById('bottomNav').style.display='flex';rebu
 /* App-like Back button: close overlays first, else go to previous screen (only exits from Home) */
 window.addEventListener('popstate',e=>{
   if(!currentUser)return;
-  if(vidModal.classList.contains('open')){closeVideo();try{history.pushState({view:currentView},'');}catch(_){}return;}
+  if(vidModal.classList.contains('open')){closeVideo();return;}
   if(modal.classList.contains('open')){closeModal();try{history.pushState({view:currentView},'');}catch(_){}return;}
   if(document.getElementById('wizard').classList.contains('show'))return;
   const v=(e.state&&e.state.view)||'home';currentView=v;if(v!=='workout')currentDay=0;renderApp();window.scrollTo({top:0});
