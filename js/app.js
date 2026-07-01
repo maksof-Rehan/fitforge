@@ -109,10 +109,11 @@ function openAddFood(){
 function openAltPicker(dayIdx,exIdx){
   const day=getEffectiveDay(dayIdx),ex=day.exercises[exIdx];if(ex.custom)return;
   const cat=ex.cat,pool=EX_POOL[cat];
-  openModal(`${modalHead(MUSCLE_LABELS[cat]+' Exercises')}
-    <p style="color:var(--muted);font-size:12.5px;margin:-6px 0 14px;line-height:1.5">Best ${pool.length} ${MUSCLE_LABELS[cat]} moves — pick <b style="color:var(--text)">any one</b> and it counts for this slot.</p>
-    ${pool.map((p,i)=>`<div class="goal-card ${i===ex.srcIdx?'sel':''}" data-alt="${i}"><div class="gc-emoji">${p.c?'🏋️':'🎯'}</div><div class="gc-t"><b>${p.name}</b><span>${p.c?'Compound':'Isolation'} · ${p.variants.map(v=>v.label).join(' / ')}</span></div><div class="gc-tick"></div></div>`).join('')}`);
-  document.querySelectorAll('#modalBox .goal-card[data-alt]').forEach(el=>el.onclick=()=>{chooseExercise(dayIdx,exIdx,+el.dataset.alt);closeModal();});
+  openModal(`${modalHead('Ways to train '+MUSCLE_LABELS[cat])}
+    <p style="color:var(--muted);font-size:12.5px;margin:-6px 0 14px;line-height:1.5">Different ways to hit your <b style="color:var(--text)">${MUSCLE_LABELS[cat]}</b> — gym or 🏠 home. Tap <b style="color:#ff6b6b">▶</b> to watch how, then <b style="color:var(--text)">Use</b> to put it in your plan.</p>
+    ${pool.map((p,i)=>{const home=p.variants.some(v=>/bodyweight|dumbbell/i.test(v.label));return `<div class="alt-row ${i===ex.srcIdx?'cur':''}"><div class="alt-info"><b>${p.c?'🏋️':'🎯'} ${p.name}${home?' 🏠':''}</b><span>${p.c?'Compound':'Isolation'} · ${p.variants.map(v=>v.label).join(' / ')}</span></div><button class="alt-demo" data-demo="${i}">▶</button><button class="alt-use" data-use="${i}">${i===ex.srcIdx?'Current':'Use'}</button></div>`;}).join('')}`);
+  document.querySelectorAll('#modalBox .alt-demo').forEach(b=>b.onclick=()=>{const p=pool[+b.dataset.demo];openVideo(p,p.variants[0]);});
+  document.querySelectorAll('#modalBox .alt-use').forEach(b=>b.onclick=()=>{chooseExercise(dayIdx,exIdx,+b.dataset.use);closeModal();});
 }
 
 /* ===== ADD EXERCISE (database-driven) ===== */
