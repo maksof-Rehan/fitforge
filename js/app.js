@@ -106,12 +106,16 @@ function openAddFood(){
 }
 
 /* ===== ALTERNATIVES PICKER (pick any exercise for a muscle slot) ===== */
+function regionOf(cat,name){const p=(EX_POOL[cat]||[]).find(x=>x.name===name);return p?p.r:null;}
 function openAltPicker(dayIdx,exIdx){
   const day=getEffectiveDay(dayIdx),ex=day.exercises[exIdx];if(ex.custom)return;
-  const cat=ex.cat,pool=EX_POOL[cat];
-  openModal(`${modalHead('Ways to train '+MUSCLE_LABELS[cat])}
-    <p style="color:var(--muted);font-size:12.5px;margin:-6px 0 14px;line-height:1.5">Different ways to hit your <b style="color:var(--text)">${MUSCLE_LABELS[cat]}</b> — gym or 🏠 home. Tap <b style="color:#ff6b6b">▶</b> to watch how, then <b style="color:var(--text)">Use</b> to put it in your plan.</p>
-    ${pool.map((p,i)=>{const home=p.variants.some(v=>/bodyweight|dumbbell/i.test(v.label));return `<div class="alt-row ${i===ex.srcIdx?'cur':''}"><div class="alt-info"><b>${p.c?'🏋️':'🎯'} ${p.name}${home?' 🏠':''}</b><span>${p.c?'Compound':'Isolation'} · ${p.variants.map(v=>v.label).join(' / ')}</span></div><button class="alt-demo" data-demo="${i}">▶</button><button class="alt-use" data-use="${i}">${i===ex.srcIdx?'Current':'Use'}</button></div>`;}).join('')}`);
+  const cat=ex.cat,pool=EX_POOL[cat],reg=ex.r||regionOf(cat,ex.name);
+  const row=(p)=>{const i=pool.indexOf(p),home=p.variants.some(v=>/bodyweight|dumbbell/i.test(v.label)),curr=(p.name===ex.name);return `<div class="alt-row ${curr?'cur':''}"><div class="alt-info"><b>${p.c?'🏋️':'🎯'} ${p.name}${home?' 🏠':''}</b><span>${p.r?p.r+' · ':''}${p.c?'Compound':'Isolation'} · ${p.variants.map(v=>v.label).join(' / ')}</span></div><button class="alt-demo" data-demo="${i}">▶</button><button class="alt-use" data-use="${i}">${curr?'Current':'Use'}</button></div>`;};
+  const same=reg?pool.filter(p=>p.r===reg):pool,others=reg?pool.filter(p=>p.r!==reg):[];
+  openModal(`${modalHead('Ways to train '+(reg||MUSCLE_LABELS[cat]))}
+    <p style="color:var(--muted);font-size:12.5px;margin:-6px 0 14px;line-height:1.5">Ways to hit <b style="color:var(--text)">${reg||MUSCLE_LABELS[cat]}</b> — gym or 🏠 home. Tap <b style="color:#ff6b6b">▶</b> to watch how, then <b style="color:var(--text)">Use</b> to add it.</p>
+    ${same.map(row).join('')}
+    ${others.length?`<div class="section-title">Other ${MUSCLE_LABELS[cat]} regions</div>${others.map(row).join('')}`:''}`);
   document.querySelectorAll('#modalBox .alt-demo').forEach(b=>b.onclick=()=>{const p=pool[+b.dataset.demo];openVideo(p,p.variants[0]);});
   document.querySelectorAll('#modalBox .alt-use').forEach(b=>b.onclick=()=>{chooseExercise(dayIdx,exIdx,+b.dataset.use);closeModal();});
 }
